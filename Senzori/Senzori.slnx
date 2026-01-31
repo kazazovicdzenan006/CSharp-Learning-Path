@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Senzori/Senzori.csproj" />
+  <Project Path="SenzoriTest/SenzoriTest.csproj" Id="e75348e1-1958-4b08-8557-f4d035267a81" />
+</Solution>
