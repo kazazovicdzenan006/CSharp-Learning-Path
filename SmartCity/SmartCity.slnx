@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="SmartCity/SmartCity.csproj" />
+  <Project Path="SmartCityTest/SmartCityTest.csproj" />
+</Solution>
