@@ -1,5 +1,8 @@
 ﻿
+using System.Text.Json.Serialization;
 
+[JsonDerivedType(typeof(Knjiga), typeDiscriminator: "Knjiga")]
+[JsonDerivedType(typeof(Film), typeDiscriminator: "Film")]
 public abstract class BibliotekaArtikal
 {
     public int Id { get; set; }

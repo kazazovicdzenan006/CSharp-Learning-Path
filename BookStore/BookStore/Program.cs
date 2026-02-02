@@ -13,7 +13,8 @@ LibraryLimitException.OnLimitReached += (vrijeme, poruka) => {
 
 };
 
-
+List<BibliotekaArtikal> artikli = new List<BibliotekaArtikal>();
+artikli.AddRange(DataInitializer.InitializeBookData()); 
 
 
 // Lista od 8 knjiga
