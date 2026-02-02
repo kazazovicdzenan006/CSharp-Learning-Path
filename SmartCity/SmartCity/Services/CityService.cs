@@ -9,7 +9,10 @@ public class CityService
         _allNodes = initialNodes;
         _manager = manager; 
     }
-    
+    public bool Exists(int id)
+    {
+        return _allNodes.Any(x => x.CityId == id);
+    }
     public void AllLocaations(Action<string> formatizer)
     {
         foreach (var node in _allNodes)
