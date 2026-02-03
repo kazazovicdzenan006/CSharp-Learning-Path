@@ -6,9 +6,9 @@
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 
-public class DataInitializer
+public static class DataInitializer
 {
-    public List<Knjiga> InitializeBookData()
+    public static List<Knjiga> InitializeBookData()
     {
         return new List<Knjiga>()
         {
@@ -24,7 +24,7 @@ public class DataInitializer
 
     }
 
-    public List<Film> InitializeFilmData()
+    public static List<Film> InitializeMovieData()
     {
         return new List<Film>() 
         {

@@ -34,7 +34,7 @@ public class Knjiga : BibliotekaArtikal, IPozajmica
             }
 
         }
-    }   
+    }
 
     public double IzracunajKasnjenje(DateOnly datumPozajmljivanja)
     {
@@ -42,32 +42,15 @@ public class Knjiga : BibliotekaArtikal, IPozajmica
         double trajanjePozajmice = danas.DayNumber - datumPozajmljivanja.DayNumber;
 
         double kasnjenje = trajanjePozajmice - 15; // obicno se stavlja po 15 dana roka pa sam primijenio fiksnu vrijednost
-        if(kasnjenje  < 0)
+        if (kasnjenje < 0)
         {
-            return 0; 
+            return 0;
         }
         else
         {
-            return kasnjenje; 
-        }
-    } 
-
-
-    public string GetDostupnost(List<IPozajmica> lista)
-    {
-        Console.WriteLine("Unesite naziv knjige koju zelite provjeriti: ");
-        string name = Console.ReadLine(); 
-        if(name.ToLower() == this.Naslov.ToLower())
-        {
-            return "Knjiga je dostupna."; 
-        }
-        else
-        {
-            return "Nazalost nemamo tu knjigu.";
+            return kasnjenje;
         }
     }
-
-
 }
 
 

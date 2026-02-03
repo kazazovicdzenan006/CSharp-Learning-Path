@@ -7,10 +7,10 @@ public class Analitika
     {
         Console.WriteLine("\n \n");
         var poAutoru = knjige.GroupBy(x => x.Autor).Select(grupa => new { imeAutora = grupa.Key, prosjekStranica = grupa.Average(k => k.BrojStranica), brojKnjiga = grupa.Count()}).ToList() ;
-       // var tip = poAutoru.GetType(); 
+   
         poAutoru.ForEach(x => Console.WriteLine($"autor: {x.imeAutora}, Prosjek stranica: {x.prosjekStranica}, Ukupno knjiga: {x.brojKnjiga}"));
 
-        // var prosjek = poAutoru.Select(x => new {})
+       
         
         Console.WriteLine("\n");
         var filter = knjige.Where(x => x.BrojStranica > 300 && x.Naslov.ToLower().StartsWith("s")).ToList();

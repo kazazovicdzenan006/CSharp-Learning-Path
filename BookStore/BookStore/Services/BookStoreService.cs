@@ -17,7 +17,7 @@ public class BookStoreService
 
     public async Task SaveCurrentState()
     {
-        await _manager.SpasiPodatke("Data.json", _biblioteka);
+       await _manager.SpasiPodatke("Data.json", _biblioteka);
     }
 
 
@@ -33,15 +33,19 @@ public class BookStoreService
     public void Analiza(Action<string> writer)
     {
      
-                writer("\n \n");
+                writer("\n \nBooks Grouped by Author: \n");
                 var poAutoru = Knjige.GroupBy(x => x.Autor).Select(grupa => new { imeAutora = grupa.Key, prosjekStranica = grupa.Average(k => k.BrojStranica), brojKnjiga = grupa.Count() }).ToList();
  
                 poAutoru.ForEach(x => writer($"autor: {x.imeAutora}, Prosjek stranica: {x.prosjekStranica}, Ukupno knjiga: {x.brojKnjiga}"));
 
-                writer("\n");
+                writer("\nBooks with more than 300 pages and name that starts with letter s: \n");
                 var filter = Knjige.Where(x => x.BrojStranica > 300 && x.Naslov.ToLower().StartsWith("s")).ToList();
                 filter.ForEach(x => writer($"Knjiga: {x.Naslov}, godinaIzdanja: {x.GodinaIzdanja}, Autor {x.Autor}, broj Stranica {x.BrojStranica}"));
-  
+                
+        writer("\nMovies grouped by movie director: \n");
+        var poReziseru = Filmovi.GroupBy(x => x.Reziser).Select(group => new { reziser = group.Key, maksTrajanje = group.Select(f => f.TrajanjeUMinutama).DefaultIfEmpty(0).Max(), brojFilmova = group.Count()}).ToList();
+        poReziseru.ForEach(x => writer($"Reziser: {x.reziser}, najduze trajanje filma {x.maksTrajanje}, broj filmova {x.brojFilmova}"));
+        
 
      
     }
@@ -100,9 +104,24 @@ public class BookStoreService
 
     }
 
+    public bool Exists(int id)
+    {
+        return _biblioteka.Any(x => x.Id == id); 
+    }
 
+    public void AddNewItem(BibliotekaArtikal item)
+    {
+        _biblioteka.Add(item);
+    }
 
+    public string GetDostupnost(string FilmName)
+    {
+        // radi i klasicna opcija ali .ToLower kreira novi privremeni string koji GC mora ocistiti, dok StringComparison radi u hodu, ne kreira nove stringove vec odmah provjerava karakter po karakter
+        bool postoji = _biblioteka.Any(x => x is Film && x.Naslov.Equals(FilmName, StringComparison.OrdinalIgnoreCase));
+        // bool postoji = _biblioteka.Any(x => x is Film && ((Film)x).Naslov.ToLower() == FilmName.ToLower());
 
+        return postoji ? "We have that movie in our collection" : "Sorry we don't have that movie in our collection";
+    }
 
 
 }

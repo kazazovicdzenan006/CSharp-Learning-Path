@@ -48,23 +48,7 @@ public class Film : BibliotekaArtikal, IPozajmica {
         }
     }
 
-    public string GetDostupnost(List<IPozajmica> lista)
-    {
-        
-        Console.WriteLine("Unesite naziv filma koji zelite provjeriti: ");
-        string name = Console.ReadLine();
-
-        bool postoji = lista.Any(x => x is Film && ((Film)x).Naslov.ToLower() == name.ToLower());
-        
-        if (postoji)
-        {
-            return "Film je dostupan.";
-        }
-        else
-        {
-            return "Nazalost nemamo taj film.";
-        }
-    }
+   
 
 
 }
