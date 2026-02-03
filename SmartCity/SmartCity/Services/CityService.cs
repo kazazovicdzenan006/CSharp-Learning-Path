@@ -63,7 +63,7 @@ public class CityService
     {
         await _manager.SaveData(_allNodes, "data.json"); 
     }
-    public async Task<List<CityNode>> loadCurrentState()
+    public async Task<List<CityNode>> LoadCurrentState()
     {
         var loadedData = await _manager.LoadData("data.json");
         _allNodes = loadedData; 

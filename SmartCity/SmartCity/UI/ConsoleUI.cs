@@ -4,9 +4,11 @@ using System.ComponentModel.Design;
 using System.Transactions;
 
 public class ConsoleUI {
-
-
-    public static void ConsoleAddObject(CityService service)
+    private readonly CityService _service; 
+    public ConsoleUI(CityService service) {
+        _service = service;
+    }
+    public  void ConsoleAddObject()
     {
         Console.WriteLine("To add parking or crossroad, follow next steps: ");
         Console.WriteLine("Enter city id: ");
@@ -17,6 +19,7 @@ public class ConsoleUI {
             idsuccess = int.TryParse(Console.ReadLine(), out int idTemp);
             if (idsuccess)
             {
+                if (_service.Exists(idTemp)) { Console.WriteLine("ID already taken!"); continue; }
                 id = idTemp;
                 break;
             }
@@ -90,7 +93,7 @@ public class ConsoleUI {
                 }
             }
             ParkingLot parking = new ParkingLot(id, zone, street, parkName, TotalSpots, AvailableSpots);
-            service.AddNode(parking);
+            _service.AddNode(parking);
         }
         if (objectType == 2)
         {
@@ -114,13 +117,13 @@ public class ConsoleUI {
             }
 
             CrossRoad cross = new CrossRoad(id, zone, street, crossName, TrafficJam);
-            service.AddNode(cross);
+            _service.AddNode(cross);
         }
 
     }
 
-    public ConsoleUI(CityService service) { }
-    public static async Task MainMenu(CityService service)
+    
+    public  async Task MainMenu()
     {
         while (true)
         {
@@ -162,7 +165,7 @@ public class ConsoleUI {
             switch (unos)
             {
                 case 1:
-                    var loaded = await service.loadCurrentState();
+                    var loaded = await _service.LoadCurrentState();
                     Console.WriteLine("Data is loaded \n \n");
                     var parkLots = loaded.OfType<ParkingLot>().ToList();
                     parkLots.ForEach(x => Console.WriteLine($"City ID: {x.CityId}, City Zone {x.CityZone}, StreetName: {x.StreetName}, " +
@@ -173,21 +176,21 @@ public class ConsoleUI {
                     break;
                 case 2:
 
-                    await service.SaveCurrentState();
+                    await _service.SaveCurrentState();
                     Console.WriteLine("Data saved");
 
                     break;
                 case 3:
-                    ConsoleAddObject(service);
+                    ConsoleAddObject();
                     break;
 
                 case 4:
                     Console.WriteLine("All locations: ");
-                    service.AllLocaations(Console.WriteLine);
+                    _service.AllLocaations(Console.WriteLine);
                     Console.WriteLine("Traffic jam by zones: ");
-                    service.TrafficJamByZones(Console.WriteLine);
+                    _service.TrafficJamByZones(Console.WriteLine);
                     Console.WriteLine("Critical points");
-                    service.AnalizeCriticalPoints(
+                    _service.AnalizeCriticalPoints(
                         text =>
                         {
                             Console.ForegroundColor = ConsoleColor.Red;
