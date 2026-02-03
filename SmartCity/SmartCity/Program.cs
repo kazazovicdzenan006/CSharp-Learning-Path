@@ -8,4 +8,5 @@ var cityServis = new CityService(allData, manager);
 
 
 
-await ConsoleUI.MainMenu(cityServis); 
+var ui = new ConsoleUI(cityServis);
+await ui.MainMenu();
