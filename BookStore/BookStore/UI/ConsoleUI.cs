@@ -13,6 +13,19 @@ public class ConsoleUI
         _executor = executor;
     }
 
+    private int ReadInt(string message)
+    {
+        int result;
+        Console.Write(message);
+        while (!int.TryParse(Console.ReadLine(), out result))
+        {
+            Console.WriteLine("Invalid input! Please enter a whole number.");
+            Console.Write(message);
+        }
+        return result;
+    }
+
+
     public  async Task MainMenu()
     {
         while (true)
@@ -79,90 +92,31 @@ public class ConsoleUI
 
 
         Console.WriteLine("if you want to add Book enter 1, if you want to add Movie enter 2");
-        bool objectTypeSuccess = false;
-        int objectType;
-        while (true)
+        int objectType = 0;
+        while (objectType != 1 && objectType != 2)
         {
-            objectTypeSuccess = int.TryParse(Console.ReadLine(), out int type);
-            if (objectTypeSuccess)
-            {
-                if (type == 1 || type == 2)
-                {
-                    objectType = type;
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("We don't have that option!");
-                }
-
-            }
-            else
-            {
-                Console.WriteLine("You didn't enter a number");
-            }
+            objectType = ReadInt("Your choice: ");
+            if (objectType != 1 && objectType != 2) Console.WriteLine("Invalid option!");
         }
-        Console.WriteLine("Enter id: ");
-        bool idsuccess = false;
-        int id = 0;
-        while (true)
+        int id = ReadInt("Enter  ID: ");
+        while (_service.Exists(id))
         {
-            bool success = false;
-            SafeExecutor.Execute(() =>
-            {
-                id = _executor.SafeParse(Console.ReadLine());
-                success = service.Exists(id);
-            });
-            if (success)
-            {
-                Console.WriteLine("ID already taken!");
-                continue;
-            }
-            else
-            {
-                break;
-            }
-
+            Console.WriteLine("ID already taken! Please try again.");
+            id = ReadInt("Enter  ID: ");
         }
         if (objectType == 1)
         {
             Console.WriteLine("Enter Book Name: ");
             var bookName = Console.ReadLine();
-            Console.WriteLine("Enter a Year of Release Date: ");
-            string releaseDate = Console.ReadLine();
-            int year = 0; 
-            bool success = false; 
-            while (true)
-            {
-                success = int.TryParse(Console.ReadLine(), out int total);
-                if (success)
-                {
-                    year = total;
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("You didn't enter a number");
-                }
-            }
+          
+            
+            int year = ReadInt("Enter a Year of Release Date: "); 
+            
             Console.WriteLine("Enter an Author: ");
             var author = Console.ReadLine();
-            Console.WriteLine("Enter page number: ");
-            bool totalsuccess = false;
-            int PageNumber;
-            while (true)
-            {
-                totalsuccess = int.TryParse(Console.ReadLine(), out int total);
-                if (totalsuccess)
-                {
-                    PageNumber = total;
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("You didn't enter a number");
-                }
-            }
+            
+            int PageNumber = ReadInt("Enter page number: ");
+           
            
             Knjiga book = new Knjiga(id, bookName, year, author , PageNumber);
             service.AddNewItem(book);
@@ -171,42 +125,16 @@ public class ConsoleUI
         {
             Console.WriteLine("Enter Movie Name: ");
             var movieName = Console.ReadLine();
-            Console.WriteLine("Enter a Year of Release Date: ");
-            string releaseDate = Console.ReadLine();
-            int year = 0;
-            bool success = false;
-            while (true)
-            {
-                success = int.TryParse(Console.ReadLine(), out int total);
-                if (success)
-                {
-                    year = total;
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("You didn't enter a number");
-                }
-            }
+           
+     
+            int year = ReadInt("Enter a Year of Release Date: ");
+          
             Console.WriteLine("Enter a Movie Director: ");
             var movieDirector = Console.ReadLine();
-            Console.WriteLine("Enter a Movie Duration in minutes: ");
-            bool totalsuccess = false;
-            int DurationInMinutes;
-            while (true)
-            {
-                totalsuccess = int.TryParse(Console.ReadLine(), out int total);
-                if (totalsuccess)
-                {
-                    DurationInMinutes = total;
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("You didn't enter a number");
-                }
-            }
-
+        
+          
+            int DurationInMinutes = ReadInt("Enter a Movie Duration in minutes: ");
+           
             Film movie = new Film(id, movieName, year, movieDirector, DurationInMinutes);
             service.AddNewItem(movie);
         }
