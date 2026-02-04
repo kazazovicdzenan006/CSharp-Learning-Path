@@ -8,90 +8,49 @@ public class ConsoleUI {
     public ConsoleUI(CityService service) {
         _service = service;
     }
+
+    private int ReadInt(string message)
+    {
+        int result;
+        Console.Write(message);
+        while (!int.TryParse(Console.ReadLine(), out result))
+        {
+            Console.WriteLine("Invalid input! Please enter a whole number.");
+            Console.Write(message);
+        }
+        return result;
+    }
+
+
     public  void ConsoleAddObject()
     {
         Console.WriteLine("To add parking or crossroad, follow next steps: ");
-        Console.WriteLine("Enter city id: ");
-        bool idsuccess = false;
-        int id;
-        while (true)
-        {
-            idsuccess = int.TryParse(Console.ReadLine(), out int idTemp);
-            if (idsuccess)
-            {
-                if (_service.Exists(idTemp)) { Console.WriteLine("ID already taken!"); continue; }
-                id = idTemp;
-                break;
-            }
-            else
-            {
-                Console.WriteLine("You didn't enter a number");
-            }
-        }
+
+        int id = ReadInt("Enter city id: ");
         Console.WriteLine("Enter city zone: ");
         var zone = Console.ReadLine();
         Console.WriteLine("Enter street name: ");
         var street = Console.ReadLine();
         Console.WriteLine("if you want to add parking enter 1, if you want to add crossroad enter 2");
-        bool objectTypeSuccess = false;
-        int objectType;
-        while (true)
+        int objectType = 0;
+        while (objectType != 1 && objectType != 2)
         {
-            objectTypeSuccess = int.TryParse(Console.ReadLine(), out int type);
-            if (objectTypeSuccess)
-            {
-                if (type == 1 || type == 2)
-                {
-                    objectType = type;
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("We don't have that option!");
-                }
-
-            }
-            else
-            {
-                Console.WriteLine("You didn't enter a number");
-            }
+            objectType = ReadInt("Your choice: ");
+            if (objectType != 1 && objectType != 2) Console.WriteLine("Invalid option!");
         }
         if (objectType == 1)
         {
             Console.WriteLine("Enter a parking name: ");
             var parkName = Console.ReadLine();
-            Console.WriteLine("Enter a number of total parking spots for your parking lot");
-            bool totalsuccess = false;
-            int TotalSpots;
-            while (true)
-            {
-                totalsuccess = int.TryParse(Console.ReadLine(), out int total);
-                if (totalsuccess)
-                {
-                    TotalSpots = total;
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("You didn't enter a number");
-                }
-            }
-            Console.WriteLine("Enter Available parking spots: ");
-            bool availablesuccess = false;
-            int AvailableSpots;
-            while (true)
-            {
-                availablesuccess = int.TryParse(Console.ReadLine(), out int available);
-                if (availablesuccess)
-                {
-                    AvailableSpots = available;
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("You didn't enter a number");
-                }
-            }
+            
+           
+            int TotalSpots = ReadInt("Enter a number of total parking spots for your parking lot");
+           
+            
+           
+            int AvailableSpots = ReadInt("Enter Available parking spots: ");
+           
+           
             ParkingLot parking = new ParkingLot(id, zone, street, parkName, TotalSpots, AvailableSpots);
             _service.AddNode(parking);
         }
@@ -99,22 +58,10 @@ public class ConsoleUI {
         {
             Console.WriteLine("Enter a crossroad name: ");
             var crossName = Console.ReadLine();
-            Console.WriteLine("Enter a traffic jam from 0 to 100");
-            bool trafficsuccess = false;
-            int TrafficJam;
-            while (true)
-            {
-                trafficsuccess = int.TryParse(Console.ReadLine(), out int jam);
-                if (trafficsuccess)
-                {
-                    TrafficJam = jam;
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("You didn't enter a number");
-                }
-            }
+            Console.WriteLine();
+            
+            int TrafficJam = ReadInt("Enter a traffic jam from 0 to 100");
+           
 
             CrossRoad cross = new CrossRoad(id, zone, street, crossName, TrafficJam);
             _service.AddNode(cross);
