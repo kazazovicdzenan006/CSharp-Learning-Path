@@ -67,10 +67,10 @@ public class Senzor : Uredjaj, ITemperature
     }
 
 
-    public override void Opis()
+    public override void Opis(Action<string> writer)
     {
-        base.Opis();
-        Console.WriteLine($"Uredjaj se nalazi u {this.grad}");
+        base.Opis(writer);
+        writer($"Uredjaj se nalazi u {this.grad}");
     }
 
 

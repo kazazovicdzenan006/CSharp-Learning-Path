@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Senzori
+namespace Senzori.Executors
 {
     public static class SafeExecutor
     {

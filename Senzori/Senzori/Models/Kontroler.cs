@@ -82,6 +82,7 @@ public class Kontroler : Uredjaj, ITemperature {
         }
     }
 
+
 }
 
 
