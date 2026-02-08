@@ -2,13 +2,14 @@
 
 using (var context = new AppDbContext())
 {
+    // EF core is actually pretty smart because it will recognise relations automatically and add objects 
     var novaKategorija = new Category { Name = "Pasta" };
     var dorucak = new Category { Name = "Dorucak" };
     var postojiPasta = await context.Recipes.FirstOrDefaultAsync(r => r.Name == "Pasta Carbonara");
     var postojiOmlet = await context.Recipes.FirstOrDefaultAsync(r => r.Name == "Omlet");
     if (postojiPasta != null)
     {
-        Console.WriteLine("Pasta vec postoji, dodavanje preskoceno!");
+        Console.WriteLine("Pasta vec postoji, dodavanje preskoceno!"); 
     }
     else
     {
