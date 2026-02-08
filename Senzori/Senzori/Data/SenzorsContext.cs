@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 public class SenzorsContext : DbContext
 {
-    DbSet<Uredjaj> Devices { get; set; }
+    public DbSet<Uredjaj> Devices { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

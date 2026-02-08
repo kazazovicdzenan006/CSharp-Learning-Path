@@ -13,11 +13,10 @@ public class ConsoleUI
         while (true)
         {
             Console.WriteLine($"Chose one of available options: \n" +
-                $"1. Load Current Data \n " +
-                $"2. Save Current Data \n " +
-                $"3. Add New Device Object \n " +
-                $"4. Analitics \n " +
-                $"5. exit \n");
+                $"1. View All Data \n " +
+                $"2. Add New Device Object \n " +
+                $"3. Analitics \n " +
+                $"4. exit \n");
             int unos = 0;
 
             bool success = false;
@@ -26,7 +25,7 @@ public class ConsoleUI
                 success = int.TryParse(Console.ReadLine(), out int result);
                 if (success)
                 {
-                    if (result > 0 && result <= 5)
+                    if (result > 0 && result <= 4)
                     {
                         unos = result;
                         break;
@@ -42,7 +41,7 @@ public class ConsoleUI
                 }
             }
 
-            if (unos == 5)
+            if (unos == 4)
             {
                 break;
             }
@@ -50,32 +49,19 @@ public class ConsoleUI
             switch (unos)
             {
                 case 1:
-                    var loaded = await _service.LoadCurrentState();
-                    Console.WriteLine("Data is loaded \n \n");
-                    var senzor = loaded.OfType<Senzor>().ToList();
-                    senzor.ForEach(x => Console.WriteLine($"Senzor ID: {x.Id}, Senzor Name {x.Name}, City Name {x.grad}, Senzor Value: {x.Vrijednost}"));
-                      
-                    var kontroler = loaded.OfType<Kontroler>().ToList();
-                    kontroler.ForEach(x => Console.WriteLine($"Controller ID: {x.Id}, Controller Name {x.Name}, Controller Model {x.ModelKontrolera}," +
-                        $"Controller Status: {x.Status}, Controller Channell Number {x.BrojKanala} "));
+                    await GenerisiIzvjestaj();
                     break;
                 case 2:
-
-                    await _service.SaveCurrentState();
-                    Console.WriteLine("Data saved");
+                    await ConsoleAddObject();
 
                     break;
                 case 3:
-                    ConsoleAddObject();
+                    var analiza = await _service.Analitics();
+                    Console.WriteLine(analiza); 
+
                     break;
 
-                case 4:
-                    Console.WriteLine("Analitics: ");
-                    _service.Analitics(Console.WriteLine);
-                    Console.WriteLine("Data Report: \n");
-                    _service.GenerisiIzvjestaj(Console.WriteLine);
-                    
-                    break;
+       
 
             }
 
@@ -84,17 +70,12 @@ public class ConsoleUI
     }
 
 
-    public void ConsoleAddObject()
+    public async Task ConsoleAddObject()
     {
         Console.WriteLine("--- Adding a New Device ---");
 
         // 1. ID input with existence check
-        int id = ReadInt("Enter Device ID: ");
-        while (_service.Exists(id))
-        {
-            Console.WriteLine("ID already taken! Please try again.");
-            id = ReadInt("Enter Device ID: ");
-        }
+       
 
         // 2. Common properties (Base class)
         Console.Write("Enter Device Name: ");
@@ -118,8 +99,12 @@ public class ConsoleUI
 
             try
             {
-                Senzor s = new Senzor(id, name, city, value);
-                _service.AddDevice(s);
+                Senzor s = new Senzor 
+                {
+                    Name = name, 
+                    grad = city,
+                    Vrijednost = value };
+                await _service.AddDevice(s);
                 Console.WriteLine("Sensor successfully added!");
             }
             catch (DeviceLimitException ex)
@@ -139,8 +124,14 @@ public class ConsoleUI
 
             try
             {
-                Kontroler k = new Kontroler(id, name, model, status, channels);
-                _service.AddDevice(k);
+                Kontroler k = new Kontroler
+                {
+                    Name = name, 
+                    ModelKontrolera = model,
+                    Status = status,
+                    BrojKanala = channels 
+                };
+                 await _service.AddDevice(k);
                 Console.WriteLine("Controller successfully added!");
             }
             catch (DeviceLimitException ex)
@@ -174,6 +165,39 @@ public class ConsoleUI
         }
         return result;
     }
+
+
+
+    public async Task GenerisiIzvjestaj()
+    {
+        var _allDevices = await _service.GetReportData();
+        const int col1 = 12;
+        const int col2 = 30;
+        const int col3 = 40;
+        const int col4 = 45;
+        int sirinaTabele = col1 + col2 + col3 + col4;
+        string linija = new string('-', sirinaTabele);
+        Console.WriteLine(linija);
+        Console.WriteLine($"\n{"TIP",-col1} | {"NAZIV",-col2} | {"STATUS",-col3} | {"DETALJI",-col4}\n\n{linija}");
+        foreach (var item in _allDevices)
+        {
+            var tip = item.GetType();
+            string detalji = "";
+            var status = (item is ITemperature t) ? t.GetStatus() : "N/A";  // because I can't access to GetStatus directly from _allData except if i implement interface in base class
+            if (item is Senzor s)
+            {
+                detalji = $"Grad: {s.grad}, vrijednost {s.Vrijednost}";
+            }
+            else if (item is Kontroler k)
+            {
+                detalji = $"Kanala: {k.BrojKanala}, model: {k.ModelKontrolera}";
+            }
+
+            Console.WriteLine($"{tip,-col1} | {((Uredjaj)item).Name,-col2} | {status,-col3} | {detalji,-col4}");
+        }
+        Console.WriteLine(linija);
+    }
+
 
 
 }

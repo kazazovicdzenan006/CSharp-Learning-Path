@@ -1,27 +1,28 @@
-﻿public static class DataInitializer
+﻿using System.Collections.Generic;
+
+public static class DataInitializer
 {
     public static List<Uredjaj> GetSeedData()
     {
         return new List<Uredjaj>
         {
-            // --- 7 SENSORS ---
-            new Senzor(1, "Living Room Temp", "Sarajevo", 22.5),
-            new Senzor(2, "Kitchen Humidity", "Banja Luka", 45.0),
-            new Senzor(3, "Server Room Heat", "Tuzla", 18.2),
-            new Senzor(4, "Garden Moisture", "Mostar", 30.5),
-            new Senzor(5, "Office Air Quality", "Zenica", 12.0),
-            new Senzor(6, "Bedroom Thermostat", "Bihać", 21.0),
-            new Senzor(7, "Warehouse Sensor", "Doboj", 15.8),
+            // --- 7 SENZORA ---
+            new Senzor { Name = "Living Room Temp", grad = "Sarajevo", Vrijednost = 22.5 },
+            new Senzor { Name = "Kitchen Humidity", grad = "Banja Luka", Vrijednost = 45.0 },
+            new Senzor { Name = "Server Room Heat", grad = "Tuzla", Vrijednost = 18.2 },
+            new Senzor { Name = "Garden Moisture", grad = "Mostar", Vrijednost = 30.5 },
+            new Senzor { Name = "Office Air Quality", grad = "Zenica", Vrijednost = 12.0 },
+            new Senzor { Name = "Bedroom Thermostat", grad = "Bihać", Vrijednost = 21.0 },
+            new Senzor { Name = "Warehouse Sensor", grad = "Doboj", Vrijednost = 15.8 },
 
-            // --- 7 CONTROLLERS ---
-            new Kontroler(8, "Main Hub", "Siemens-S7", true, 4),
-            new Kontroler(9, "Light Switcher", "Arduino-Uno", false, 2),
-            new Kontroler(10, "HVAC Manager", "Honeywell-T1", true, 6),
-            new Kontroler(11, "Gate Opener", "Raspberry-Pi-4", true, 1),
-            // Example of a controller with 8 channels (max limit)
-            new Kontroler(12, "Industrial PLC", "Schneider-Electric", true, 8),
-            new Kontroler(13, "Security Node", "ESP32", false, 4),
-            new Kontroler(14, "Irrigation Master", "Orbit-BHyve", true, 3)
+            // --- 7 KONTROLERA ---
+            new Kontroler { Name = "Main Hub", ModelKontrolera = "Siemens-S7", Status = true, BrojKanala = 4 },
+            new Kontroler { Name = "Light Switcher", ModelKontrolera = "Arduino-Uno", Status = false, BrojKanala = 2 },
+            new Kontroler { Name = "HVAC Manager", ModelKontrolera = "Honeywell-T1", Status = true, BrojKanala = 6 },
+            new Kontroler { Name = "Gate Opener", ModelKontrolera = "Raspberry-Pi-4", Status = true, BrojKanala = 1 },
+            new Kontroler { Name = "Industrial PLC", ModelKontrolera = "Schneider-Electric", Status = true, BrojKanala = 8 },
+            new Kontroler { Name = "Security Node", ModelKontrolera = "ESP32", Status = false, BrojKanala = 4 },
+            new Kontroler { Name = "Irrigation Master", ModelKontrolera = "Orbit-BHyve", Status = true, BrojKanala = 3 }
         };
     }
 }

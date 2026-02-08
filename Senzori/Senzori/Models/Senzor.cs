@@ -3,6 +3,7 @@
 
 
 using System.ComponentModel.Design;
+using System.Text;
 
 public class Senzor : Uredjaj, ITemperature
 {
@@ -67,10 +68,12 @@ public class Senzor : Uredjaj, ITemperature
     }
 
 
-    public override void Opis(Action<string> writer)
+    public override string Opis()
     {
-        base.Opis(writer);
-        writer($"Uredjaj se nalazi u {this.grad}");
+        var sb = new StringBuilder();
+        sb.AppendLine(base.Opis());
+        sb.AppendLine($"Uredjaj se nalazi u {this.grad}");
+        return sb.ToString(); 
     }
 
 

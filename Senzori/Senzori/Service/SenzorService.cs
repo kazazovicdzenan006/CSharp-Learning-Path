@@ -1,84 +1,58 @@
 ﻿
 
 
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using System.Text;
+
 public class SenzorService
 {
-    private readonly List<Uredjaj> _allDevices;
-    private readonly StorageManager<Uredjaj> _manager;
+    private readonly SenzorsContext _context;
+    private IQueryable<Senzor> senzors => _context.Devices.OfType<Senzor>();
+    private IQueryable<Kontroler> controllers => _context.Devices.OfType<Kontroler>();
+ 
     
-    public SenzorService(List<Uredjaj> devices, StorageManager<Uredjaj> manager)
+    public SenzorService(SenzorsContext context)
     {
-        _allDevices = devices;
-        _manager = manager; 
-    }
-
-    public async Task SaveCurrentState()
-    {
-        await _manager.spasiPodatke("Data.json", _allDevices); 
+        _context = context;
     }
 
 
-    public async Task<List<Uredjaj>> LoadCurrentState()
+    public async Task<string> Analitics()
     {
-        var loaded = await _manager.UcitajPodatke("Data.json");
-        _allDevices.Clear();
-        _allDevices.AddRange(loaded);
-        return _allDevices; 
-    } 
+        var sb = new StringBuilder(); 
+       
 
-    public void Analitics(Action<string> writer)
-    {
-        var senzors = _allDevices.OfType<Senzor>().ToList();
-        var controllers = _allDevices.OfType<Kontroler>().ToList();
-
-        var prosjek = senzors.GroupBy(x => x.grad).Select(m => new { grad = m.Key, Prosjek = m.Average(n => n.Vrijednost) }).ToList();
-        prosjek.ForEach(x => writer($"prosjecna vrijednost u gradu {x.grad} iznosi {x.Prosjek}"));
+        var prosjek = await senzors.GroupBy(x => x.grad).Select(m => new { grad = m.Key, Prosjek = m.Average(n => (double?)n.Vrijednost ?? 0.0) }).ToListAsync();
+        prosjek.ForEach(x => sb.AppendLine($"prosjecna vrijednost u gradu {x.grad} iznosi {x.Prosjek}"));
         var max = prosjek.MaxBy(x => x.Prosjek);
-        writer($"Grad sa najlosijom kvalitetom zraka je: {max.grad}");
-        var prosjekDrzave = prosjek.Average(x => x.Prosjek);
+        sb.AppendLine($"Grad sa najlosijom kvalitetom zraka je: {max.grad}");
+        var prosjekDrzave = prosjek.Average(x => (double?)x.Prosjek ?? 0.0);
         var gradoviIznadProsjeka = prosjek.Where(x => x.Prosjek > prosjekDrzave).ToList();
-        gradoviIznadProsjeka.ForEach(x => writer($"kriticni grad: {x.grad}"));
+        gradoviIznadProsjeka.ForEach(x => sb.AppendLine($"kriticni grad: {x.grad}"));
 
+        return sb.ToString();
 }
 
-    public void GenerisiIzvjestaj(Action<string> formatizer)
+    public async Task<List<Uredjaj>> GetReportData()
     {
-        const int col1 = 12;
-        const int col2 = 30;
-        const int col3 = 40;
-        const int col4 = 45;
-        int sirinaTabele = col1 + col2 + col3 + col4;
-        string linija = new string('-', sirinaTabele);
-        formatizer(linija);
-        formatizer($"\n{"TIP",-col1} | {"NAZIV",-col2} | {"STATUS",-col3} | {"DETALJI",-col4}\n\n{linija}");
-        foreach (var item in _allDevices)
-        {
-            var tip = item.GetType();
-            string detalji = "";
-            var status = (item is ITemperature t)? t.GetStatus() : "N/A";  // because I can't access to GetStatus directly from _allData except if i implement interface in base class
-            if (item is Senzor s)
-            {
-                detalji = $"Grad: {s.grad}, vrijednost {s.Vrijednost}";
-            }
-            else if (item is Kontroler k)
-            {
-                detalji = $"Kanala: {k.BrojKanala}, model: {k.ModelKontrolera}";
-            }
-
-                formatizer($"{tip,-col1} | {((Uredjaj)item).Name,-col2} | {status,-col3} | {detalji,-col4}");
-        }
-        formatizer(linija);
+        var allData = await _context.Devices.AsNoTracking().ToListAsync();
+        return allData; 
     }
 
 
-    public bool Exists(int id)
+ 
+
+
+    public async Task<bool> Exists(int id)
     {
-        return _allDevices.Any(x => x.Id == id);
+        return await _context.Devices.AnyAsync(x => x.Id == id);
     }
 
-    public void AddDevice(Uredjaj obj)
+    public async Task AddDevice(Uredjaj obj)
     {
-        _allDevices.Add(obj);
+        await _context.Devices.AddAsync(obj);
+        await _context.SaveChangesAsync();
     }
 
 
