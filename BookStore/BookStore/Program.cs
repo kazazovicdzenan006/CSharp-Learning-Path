@@ -16,8 +16,7 @@ LibraryLimitException.OnLimitReached += (vrijeme, poruka) => {
 using var bookStoreContext = new BookStoreContext();
 var service = new BookStoreService(bookStoreContext);
 var executor = new ParseExecutor();
-bookStoreContext.StoreItems.RemoveRange(bookStoreContext.StoreItems);
-await bookStoreContext.SaveChangesAsync();
+
 if (!bookStoreContext.StoreItems.Any())
 {
     // Punimo knjige
