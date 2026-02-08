@@ -22,11 +22,11 @@ public class ConsoleUI {
     }
 
 
-    public  void ConsoleAddObject()
+    public  async Task ConsoleAddObject()
     {
         Console.WriteLine("To add parking or crossroad, follow next steps: ");
 
-        int id = ReadInt("Enter city id: ");
+        
         Console.WriteLine("Enter city zone: ");
         var zone = Console.ReadLine();
         Console.WriteLine("Enter street name: ");
@@ -51,8 +51,14 @@ public class ConsoleUI {
             int AvailableSpots = ReadInt("Enter Available parking spots: ");
            
            
-            ParkingLot parking = new ParkingLot(id, zone, street, parkName, TotalSpots, AvailableSpots);
-            _service.AddNode(parking);
+            ParkingLot parking = new ParkingLot
+            {
+               CityZone = zone, 
+               StreetName = street, 
+               ParkingName = parkName, 
+               TotalParkingSpots = TotalSpots,
+               AvailableParkingSpots = AvailableSpots };
+            await _service.AddNode(parking);
         }
         if (objectType == 2)
         {
@@ -63,8 +69,14 @@ public class ConsoleUI {
             int TrafficJam = ReadInt("Enter a traffic jam from 0 to 100");
            
 
-            CrossRoad cross = new CrossRoad(id, zone, street, crossName, TrafficJam);
-            _service.AddNode(cross);
+            CrossRoad cross = new CrossRoad
+            {
+               CityZone = zone, 
+                StreetName = street, 
+               CrossName = crossName, 
+               TrafficJamPercantage = TrafficJam 
+            };
+            await _service.AddNode(cross);
         }
 
     }
@@ -75,11 +87,10 @@ public class ConsoleUI {
         while (true)
         {
             Console.WriteLine($"Chose one of available options: \n" +
-                $"1. Load Current Data \n " +
-                $"2. Save Current Data \n " +
-                $"3. Add New CityNode Object \n " +
-                $"4. Analitics \n " +
-                $"5. exit \n");
+                $"1. View all Data \n " +
+                $"2. Add New CityNode Object \n " +
+                $"3. Analitics \n " +
+                $"4. exit \n");
             int unos = 0;
 
             bool success = false;
@@ -88,7 +99,7 @@ public class ConsoleUI {
                 success = int.TryParse(Console.ReadLine(), out int result);
                 if (success)
                 {
-                    if (result > 0 && result <= 5)
+                    if (result > 0 && result <= 4)
                     {
                         unos = result;
                         break;
@@ -104,7 +115,7 @@ public class ConsoleUI {
                 }
             }
 
-            if(unos == 5)
+            if(unos == 4)
             {
                 break; 
             }
@@ -112,41 +123,38 @@ public class ConsoleUI {
             switch (unos)
             {
                 case 1:
-                    var loaded = await _service.LoadCurrentState();
-                    Console.WriteLine("Data is loaded \n \n");
+                    var loaded = await _service.GetReportData();
+                    
                     var parkLots = loaded.OfType<ParkingLot>().ToList();
-                    parkLots.ForEach(x => Console.WriteLine($"City ID: {x.CityId}, City Zone {x.CityZone}, StreetName: {x.StreetName}, " +
+                    parkLots.ForEach(x => Console.WriteLine($"City ID: {x.Id}, City Zone {x.CityZone}, StreetName: {x.StreetName}, " +
                         $"Parking name: {x.ParkingName}, Total Space: {x.TotalParkingSpots}, Available Spots {x.AvailableParkingSpots}"));
                     var crossRoads = loaded.OfType<CrossRoad>().ToList();
-                    crossRoads.ForEach(x => Console.WriteLine($"City ID: {x.CityId}, City Zone {x.CityZone}, StreetName: {x.StreetName}," +
+                    crossRoads.ForEach(x => Console.WriteLine($"City ID: {x.Id}, City Zone {x.CityZone}, StreetName: {x.StreetName}," +
                         $"CrossRoad name {x.CrossName}, Traffic jam {x.TrafficJamPercantage}% "));
                     break;
                 case 2:
+                    await ConsoleAddObject();
 
-                    await _service.SaveCurrentState();
-                    Console.WriteLine("Data saved");
 
                     break;
                 case 3:
-                    ConsoleAddObject();
+                    Console.WriteLine("All locations: ");
+                     var locations = await _service.AllLocaations();
+                    Console.WriteLine(locations);
+                    Console.WriteLine("Traffic jam by zones: ");
+                    var jam = await _service.TrafficJamByZones();
+                    Console.WriteLine(jam);
+                    Console.WriteLine("Critical points");
+                    var critical = _service.AnalizeCriticalPoints();
+                        
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine(critical);
+                            Console.ResetColor();
+                        
+                        
                     break;
 
-                case 4:
-                    Console.WriteLine("All locations: ");
-                    _service.AllLocaations(Console.WriteLine);
-                    Console.WriteLine("Traffic jam by zones: ");
-                    _service.TrafficJamByZones(Console.WriteLine);
-                    Console.WriteLine("Critical points");
-                    _service.AnalizeCriticalPoints(
-                        text =>
-                        {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine(text);
-                            Console.ResetColor(); 
-                        }
-                        );
-                    break;
-                   
+            
             }
            
 

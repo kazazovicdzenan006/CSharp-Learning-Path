@@ -1,10 +1,25 @@
 ﻿
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Channels;
-var manager = new CityManager<CityNode>(); 
-List<CityNode> allData = new List<CityNode>();
-allData.AddRange(DataInitializer.GetParkingLotSeedData());
-allData.AddRange(DataInitializer.GetCrossRoadSeedData());
-var cityServis = new CityService(allData, manager);
+using var context = new CityContext();
+var cityServis = new CityService(context);
+await context.Database.ExecuteSqlRawAsync("DELETE FROM CityNodes");
+
+if (!context.CityNodes.Any())
+{
+    var ParkingLots = DataInitializer.GetParkingLotSeedData();
+    foreach (var p in ParkingLots)
+    {
+        await cityServis.AddNode(p);
+    }
+
+    var CrossRoads = DataInitializer.GetCrossRoadSeedData();
+    foreach (var c in CrossRoads)
+    {
+        await cityServis.AddNode(c);
+    }
+}
+
 
 
 

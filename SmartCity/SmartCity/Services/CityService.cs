@@ -1,81 +1,97 @@
 ﻿
+using Microsoft.EntityFrameworkCore;
+using System.Text;
+
 public class CityService
 {
-    private List<CityNode> _allNodes = new List<CityNode>();
-    private CityManager<CityNode> _manager = new(); 
+   private readonly CityContext _context;
+    private IQueryable<CrossRoad> crossRoads => _context.CityNodes.OfType<CrossRoad>();
+    private IQueryable<ParkingLot> parkingLots => _context.CityNodes.OfType<ParkingLot>();
 
-    public CityService(List<CityNode> initialNodes, CityManager<CityNode> manager)
+    public CityService(CityContext context)
     {
-        _allNodes = initialNodes;
-        _manager = manager; 
+        _context = context;
     }
-    public bool Exists(int id)
+    public async Task<bool> Exists(int id)
     {
-        return _allNodes.Any(x => x.CityId == id);
+        return await _context.CityNodes.AnyAsync(x => x.Id == id);
     }
-    public void AllLocaations(Action<string> formatizer)
+    public async Task<string> AllLocaations()
     {
+        var _allNodes = await _context.CityNodes.AsNoTracking().ToListAsync();
+        var sp = new StringBuilder();  
         foreach (var node in _allNodes)
         {
-            string info = $"[{node.GetType().Name}] ID: {node.CityId}, Zona {node.CityZone}, Adresa {node.StreetName}";
-            formatizer(info); 
+            string info = $"[{node.GetType().Name}] ID: {node.Id}, Zona {node.CityZone}, Adresa {node.StreetName}";
+            sp.AppendLine(info); 
         }
+        return sp.ToString();
     }
 
 
-    public void TrafficJamByZones(Action<string> writer)
+    public async Task<List<CityNode>> GetReportData()
     {
-        var rezultati = _allNodes.OfType<CrossRoad>()
-            .GroupBy(x => x.CityZone)
-            .Select(g => new { zona = g.Key, prosjek = g.Average(x => x.TrafficJamPercantage) });
+        var data = await _context.CityNodes.AsNoTracking().ToListAsync();
+        return data;
+    }
 
+    public async Task<string> TrafficJamByZones()
+    {
+        var rezultati = crossRoads
+            .GroupBy(x => x.CityZone)
+            .Select(g => new { zona = g.Key, prosjek = g.Average(x => (double?)x.TrafficJamPercantage ?? 0.0) });
+        var sp = new StringBuilder();
 
         foreach (var r in rezultati)
         {
-            writer($"Zona {r.zona} | Average Traffic jam {r.prosjek}%");
+            sp.AppendLine($"Zona {r.zona} | Average Traffic jam {r.prosjek}%");
         }
-
+        return sp.ToString(); 
     }
 
 
-    public void AnalizeCriticalPoints(Action<string> alarm)
+    public string AnalizeCriticalPoints()
     {
-        var HighJamCrossRoads = _allNodes.OfType<CrossRoad>().Where(x => x.TrafficJamPercantage > 80);
-        var HighlyOcuppiedParkingLots = _allNodes.OfType<ParkingLot>().Where(x => x.AvailableParkingSpots < 5);  
+        var sp = new StringBuilder(); 
+        var HighJamCrossRoads = crossRoads.Where(x => x.TrafficJamPercantage > 80);
+        var HighlyOcuppiedParkingLots = parkingLots.Where(x => x.AvailableParkingSpots < 5);  
         if (HighJamCrossRoads.Any())
         {
             foreach (var item in HighJamCrossRoads)
             {
-                alarm($"Crossroad {item.CrossName} in zone {item.CityZone} has high traffic jam of {item.TrafficJamPercantage}%"); 
+                sp.AppendLine($"Crossroad {item.CrossName} in zone {item.CityZone} has high traffic jam of {item.TrafficJamPercantage}%"); 
             }
         }
         if (HighlyOcuppiedParkingLots.Any())
         {
             foreach (var p in HighlyOcuppiedParkingLots)
             {
-                alarm($"Parking {p.ParkingName} in zone {p.CityZone} has only {p.AvailableParkingSpots} available spots left"); 
+                sp.AppendLine($"Parking {p.ParkingName} in zone {p.CityZone} has only {p.AvailableParkingSpots} available spots left"); 
             }
         }
+        return sp.ToString();
     }
  
 
-    public async Task SaveCurrentState()
-    {
-        await _manager.SaveData(_allNodes, "data.json"); 
-    }
-    public async Task<List<CityNode>> LoadCurrentState()
-    {
-        var loadedData = await _manager.LoadData("data.json");
-        _allNodes = loadedData; 
-        return loadedData; 
-    }
 
-
-    public void AddNode(CityNode novi)
+    public async Task AddNode(CityNode novi)
     {
-        SafeExecutor.Execute(
-            () => { _allNodes.Add(novi);  } 
-            ); 
+        /*
+        SafeExecutor.Execute(async () =>
+        {
+            await _context.CityNodes.AddAsync(novi);
+            await _context.SaveChangesAsync();
+        }); */
+
+        try
+        {
+            await _context.CityNodes.AddAsync(novi);
+            await _context.SaveChangesAsync();
+        }
+        catch (CityExceptionSystem ex) { }
+        
+
+        
     }
 }
 

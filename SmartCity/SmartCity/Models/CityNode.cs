@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 [JsonDerivedType(typeof(CrossRoad), typeDiscriminator: "Cross")]
 public abstract class CityNode
     {
-            public int CityId {  get; set; }
+            public int Id {  get; set; }
 
             public string CityZone { get; set; }
             
@@ -14,7 +14,7 @@ public abstract class CityNode
 
     public virtual void NodeInfo()
     {
-        Console.WriteLine($"CityId: {CityId}, City zone: {CityZone}, Street: {StreetName}");
+        Console.WriteLine($"CityId: {Id}, City zone: {CityZone}, Street: {StreetName}");
     }
 
 

@@ -5,7 +5,7 @@ public class CrossRoad : CityNode, IMonitor
     public CrossRoad() { }
     public CrossRoad(int id, string zone, string street, string crossName, double traficJamPercantage)
     {
-        CityId = id;
+        Id = id;
         CityZone = zone;
         StreetName = street;
         this.CrossName = crossName;

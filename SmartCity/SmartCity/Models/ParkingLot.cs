@@ -7,7 +7,7 @@ public class ParkingLot : CityNode, IMonitor
     
     public ParkingLot(int id, string zone, string street, string parkingName, int totalParkingSpots, int availableParkingSpots)
     {
-        CityId = id;
+        Id = id;
         CityZone = zone; 
         StreetName = street;
         this.ParkingName = parkingName;
@@ -36,29 +36,30 @@ public class ParkingLot : CityNode, IMonitor
     public int AvailableParkingSpots
     {
         get { return _availableSpots; }
-
-
         set
         {
-            if (value > TotalParkingSpots)
+            // Validacija ima smisla samo ako je Total postavljen.
+            // Ako je Total 0, znači da EF Core još uvijek "gradi" objekt.
+            if (TotalParkingSpots != 0)
             {
-                throw new CityExceptionSystem("You can't have more available spaces than total spaces!");
-            }
-            else if (value <= 0)
-            {
-                throw new CityExceptionSystem("Sorry, all parking spots are already ocuppied!");
-            }
-            else if (value > TotalParkingSpots - 10)
-            {
-                CityExceptionSystem.CloseToTheParkingLimit(this, "Hurry up, we have just a few more spots available!");
+                if (value > TotalParkingSpots)
+                    throw new CityExceptionSystem("You can't have more available spaces than total spaces!");
+
+                if (value <= 0)
+                    throw new CityExceptionSystem("Sorry, all parking spots are already occupied!");
             }
 
             _availableSpots = value;
 
+            // Event okidač ostaje aktivan samo ako je validacija prošla
+            if (TotalParkingSpots != 0 && value > TotalParkingSpots - 10)
+            {
+                CityExceptionSystem.CloseToTheParkingLimit(this, "Hurry up...");
+            }
         }
     }
 
-        public override void NodeInfo()
+    public override void NodeInfo()
     {
         base.NodeInfo();
         Console.WriteLine($"Total number of parking spots: {TotalParkingSpots}, Available Parking Spots: {AvailableParkingSpots}");
