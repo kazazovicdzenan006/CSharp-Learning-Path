@@ -1,123 +1,97 @@
 ﻿
 
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
+using System.Text;
+
 public class BookStoreService
 {
-    private readonly List<BibliotekaArtikal> _biblioteka;
-    private readonly StorageManager<BibliotekaArtikal> _manager;
-    private List<Knjiga> Knjige => _biblioteka.OfType<Knjiga>().ToList();
-    private List<Film> Filmovi => _biblioteka.OfType<Film>().ToList();
+    //private readonly List<BibliotekaArtikal> _biblioteka;
+    //private readonly StorageManager<BibliotekaArtikal> _manager;
+    //private List<Knjiga> Knjige => _biblioteka.OfType<Knjiga>().ToList();
+    //private List<Film> Filmovi => _biblioteka.OfType<Film>().ToList();
 
-
-    public BookStoreService(List<BibliotekaArtikal> artikli, StorageManager<BibliotekaArtikal> manager)
+    private readonly BookStoreContext _context;
+    private IQueryable<Knjiga> Knjige => _context.StoreItems.OfType<Knjiga>();
+    private IQueryable<Film> Filmovi => _context.StoreItems.OfType<Film>();
+    // Using IQueryable for minimal data transfer and Deferred Execution
+    //Data filtering is done on the server and we only get the finished product (only data that we need instead all of the data) 
+    // so we improving performance plus IQueryable is waiting for ToListAsync or similar methods to send data (Deferred Execution)
+    public BookStoreService(BookStoreContext context /*List<BibliotekaArtikal> artikli, StorageManager<BibliotekaArtikal> manager*/)
     {
-        _biblioteka = artikli;
-        _manager = manager;
-       
-    }
+        // _biblioteka = artikli;
+        //  _manager = manager;
 
-    public async Task SaveCurrentState()
-    {
-       await _manager.SpasiPodatke("Data.json", _biblioteka);
-    }
-
-
-    public async Task<List<BibliotekaArtikal>> LoadCurrentState()
-    {
-        var loadedData = await _manager.UcitajPodatke("Data.json");
-        _biblioteka.Clear();
-        _biblioteka.AddRange(loadedData); 
-        return _biblioteka;
-    }
-
-
-    public void Analiza(Action<string> writer)
-    {
-     
-                writer("\n \nBooks Grouped by Author: \n");
-                var poAutoru = Knjige.GroupBy(x => x.Autor).Select(grupa => new { imeAutora = grupa.Key, prosjekStranica = grupa.Average(k => k.BrojStranica), brojKnjiga = grupa.Count() }).ToList();
- 
-                poAutoru.ForEach(x => writer($"autor: {x.imeAutora}, Prosjek stranica: {x.prosjekStranica}, Ukupno knjiga: {x.brojKnjiga}"));
-
-                writer("\nBooks with more than 300 pages and name that starts with letter s: \n");
-                var filter = Knjige.Where(x => x.BrojStranica > 300 && x.Naslov.ToLower().StartsWith("s")).ToList();
-                filter.ForEach(x => writer($"Knjiga: {x.Naslov}, godinaIzdanja: {x.GodinaIzdanja}, Autor {x.Autor}, broj Stranica {x.BrojStranica}"));
-                
-        writer("\nMovies grouped by movie director: \n");
-        var poReziseru = Filmovi.GroupBy(x => x.Reziser).Select(group => new { reziser = group.Key, maksTrajanje = group.Select(f => f.TrajanjeUMinutama).DefaultIfEmpty(0).Max(), brojFilmova = group.Count()}).ToList();
-        poReziseru.ForEach(x => writer($"Reziser: {x.reziser}, najduze trajanje filma {x.maksTrajanje}, broj filmova {x.brojFilmova}"));
-        
-
-     
-    }
-
-
-
-    public void GenerisiIzvjestaj(Action<string> formatizer)
-    {
-        const int col1 = 15;
-        const int col2 = 20;
-        const int col3 = 10;
-        const int col4 = 65;
-
-
-
-        int sirinaTabele = col1 + col2 + col3 + col4;
-        string linija = new string('-', sirinaTabele);
-        formatizer($"\n\n{linija}\n");
-        formatizer($"{"TIP",-col1} | {"NAZIV",-col2} | {"GODINA IZDANJA",-col3} | {"DETALJI",-col4}");
-        formatizer($"\n{linija}");
-        foreach (var item in _biblioteka)
-        {
-            string tip = item.GetType().Name;
-            string detalji = "";
-            if (item is Knjiga k)
-            {
-                detalji = $"Autor: {k.Autor}, broj stranica: {k.BrojStranica} ";
-            }
-            else if (item is Film f)
-            {
-                detalji = $"Reziser: {f.Reziser}, trajanje u minutama: {f.TrajanjeUMinutama} ";
-            }
-            formatizer($"{tip,-col1} | {((BibliotekaArtikal)item).Naslov,-col2} | {((BibliotekaArtikal)item).GodinaIzdanja,-col3} | {detalji,-col4}");
-
-        }
-
-        formatizer($"\n{linija}");
-    }
-
-    public List<Knjiga> FiltrirajKnjige(Func<Knjiga, bool> uslov)
-    {
-        List<Knjiga> rezultat = new List<Knjiga>();
-
-        foreach (var item in _biblioteka)
-        {
-            if (item is Knjiga k)
-            {
-                if (uslov(k))
-                {
-                    rezultat.Add(k);
-                }
-            }
-        }
-
-        return rezultat;
+        _context = context;
 
     }
 
-    public bool Exists(int id)
+    // we don't need method SaveCurrentState because we have now database and Method AddNewItem do all hardwork
+
+
+    public async Task<string> Analiza()
     {
-        return _biblioteka.Any(x => x.Id == id); 
+
+        var sb = new StringBuilder(); // we use StringBuilder instead of writer (delegate) so we can get maximum layer independency
+                                      // and also full clean architecture (Separation of Concerns)
+
+        sb.AppendLine("\n \nBooks Grouped by Author: \n");
+        var poAutoru = await Knjige.GroupBy(x => x.Autor).Select(grupa => new { imeAutora = grupa.Key, prosjekStranica = grupa.Average(k => (double?)k.BrojStranica) ?? 0.0, brojKnjiga = grupa.Count() }).ToListAsync();
+
+        poAutoru.ForEach(x => sb.AppendLine($"autor: {x.imeAutora}, Prosjek stranica: {x.prosjekStranica}, Ukupno knjiga: {x.brojKnjiga}"));
+
+        sb.AppendLine("\nBooks with more than 300 pages and name that starts with letter s: \n");
+        var filter = await Knjige.Where(x => x.BrojStranica > 300 && x.Naslov.StartsWith("s")).ToListAsync(); // now we don't have to use ToLower
+                                                                                                              // because we are working with database and sql is case insensitive 
+        filter.ForEach(x => sb.AppendLine($"Knjiga: {x.Naslov}, godinaIzdanja: {x.GodinaIzdanja}, Autor {x.Autor}, broj Stranica {x.BrojStranica}"));
+
+        sb.AppendLine("\nMovies grouped by movie director: \n");
+        var poReziseru = await Filmovi
+     .GroupBy(x => x.Reziser)
+     .Select(group => new {
+         reziser = group.Key,
+         maksTrajanje = group.Max(f => (int?)f.TrajanjeUMinutama) ?? 0,
+         // (int?) casting int to nullable value and if it is null it will return 0 (?? 0)
+         brojFilmova = group.Count()
+     }).ToListAsync();
+        poReziseru.ForEach(x => sb.AppendLine($"Reziser: {x.reziser}, najduze trajanje filma {x.maksTrajanje}, broj filmova {x.brojFilmova}"));
+
+        return sb.ToString();
+
     }
 
-    public void AddNewItem(BibliotekaArtikal item)
+    public async Task<List<BibliotekaArtikal>> GetReportData()
     {
-        _biblioteka.Add(item);
+        var AllData = await _context.StoreItems.AsNoTracking().ToListAsync();
+        // if we will only read data, we use .AsNoTracking() so we don't waste resources for monitoring data
+        return AllData;
     }
 
-    public string GetDostupnost(string FilmName)
+
+
+    public async Task<List<Knjiga>> FiltrirajKnjige(Expression<Func<Knjiga, bool>> uslov)
+    {
+        return await Knjige.Where(uslov).ToListAsync();
+        //instead of foreach loop because foreach load all data from the database, this way server do the hardwork, we just say what we need
+    }
+
+    public async Task<bool> Exists(int id)
+    {
+        return await _context.StoreItems.AnyAsync(x => x.Id == id); // we need == to  check if it exists
+
+    }
+
+    public async Task AddNewItem(BibliotekaArtikal item)
+    {
+        await _context.StoreItems.AddAsync(item);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<string> GetDostupnost(string FilmName)
     {
         // radi i klasicna opcija ali .ToLower kreira novi privremeni string koji GC mora ocistiti, dok StringComparison radi u hodu, ne kreira nove stringove vec odmah provjerava karakter po karakter
-        bool postoji = _biblioteka.Any(x => x is Film && x.Naslov.Equals(FilmName, StringComparison.OrdinalIgnoreCase));
+        bool postoji = await Filmovi.AsNoTracking().AnyAsync(x => x.Naslov == FilmName);
         // bool postoji = _biblioteka.Any(x => x is Film && ((Film)x).Naslov.ToLower() == FilmName.ToLower());
 
         return postoji ? "We have that movie in our collection" : "Sorry we don't have that movie in our collection";

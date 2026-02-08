@@ -12,11 +12,21 @@ LibraryLimitException.OnLimitReached += (vrijeme, poruka) => {
     File.AppendAllText("log.txt", poruka);
 
 };
-List<BibliotekaArtikal> allData = new List<BibliotekaArtikal>();
-ParseExecutor executor = new ParseExecutor();
-allData.AddRange(DataInitializer.InitializeBookData());
-allData.AddRange(DataInitializer.InitializeMovieData());
-StorageManager<BibliotekaArtikal> manager = new StorageManager<BibliotekaArtikal>();
-BookStoreService service = new BookStoreService(allData, manager);
-ConsoleUI ConsoleMenu = new ConsoleUI(service, executor);
-await ConsoleMenu.MainMenu(); 
+
+using var bookStoreContext = new BookStoreContext();
+var service = new BookStoreService(bookStoreContext);
+var executor = new ParseExecutor();
+bookStoreContext.StoreItems.RemoveRange(bookStoreContext.StoreItems);
+await bookStoreContext.SaveChangesAsync();
+if (!bookStoreContext.StoreItems.Any())
+{
+    // Punimo knjige
+    var books = DataInitializer.InitializeBookData();
+    foreach (var item in books) await service.AddNewItem(item);
+
+    // Punimo filmove - OVO TI JE FALILO
+    var movies = DataInitializer.InitializeMovieData();
+    foreach (var item in movies) await service.AddNewItem(item);
+}
+var ConsoleMenu = new ConsoleUI(service, executor);
+    await ConsoleMenu.MainMenu();

@@ -5,7 +5,8 @@ using System.Text.Json.Serialization;
 [JsonDerivedType(typeof(Film), typeDiscriminator: "Film")]
 public abstract class BibliotekaArtikal
 {
-    public int Id { get; set; }
+    public int Id { get; set; } // EF Core autoincrement because of name and it will be used as primary key here and foreign 
+    // key in children classes
 
     public string Naslov { get; set; }
 

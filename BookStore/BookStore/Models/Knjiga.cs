@@ -3,7 +3,7 @@
 
 public class Knjiga : BibliotekaArtikal, IPozajmica
 {
-    public Knjiga() { }
+    public Knjiga() { } // we have to use empty constructor for ef core 
 
     public Knjiga(int id, string naziv, int godinaIzdanja, string autor, int brojStranica)
     {
