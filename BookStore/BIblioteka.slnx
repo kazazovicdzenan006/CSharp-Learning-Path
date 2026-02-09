@@ -1,4 +1,15 @@
 <Solution>
-  <Project Path="BookStore/BIblioteka.csproj" />
-  <Project Path="UnitTestBookStore/TestProject1.csproj" />
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="Default" />
+    <BuildType Name="Release" />
+  </Configurations>
+  <Project Path="BookStore/BIblioteka.csproj">
+    <BuildType Solution="Default|*" Project="Release" />
+    <Build Solution="Default|*" Project="false" />
+  </Project>
+  <Project Path="UnitTestBookStore/TestProject1.csproj">
+    <BuildType Solution="Default|*" Project="Release" />
+    <Build Solution="Default|*" Project="false" />
+  </Project>
 </Solution>
