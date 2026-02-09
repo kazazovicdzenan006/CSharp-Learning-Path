@@ -3,14 +3,16 @@
 public interface IUnitOfWork : IDisposable
 {
 
-    IRepository<Grad> Gradovi { get; }
-    IRepository<BibliotekaArtikal> Artikli { get; }
-    IRepository<Uredjaj> Uredjaji { get; }
-    IRepository<CityNode> CityNodes { get; }
-
-
-    IRepository<Knjiga> Knjige { get; }
-    IRepository<ParkingLot> Parkinzi { get; }
+    public IRepository<Grad> Gradovi { get; }
+    public IRepository<BibliotekaArtikal> Artikli { get;  }
+    public IRepository<Uredjaj> Uredjaji { get;  }
+    public IRepository<CityNode> CityNodes { get;  }
+    public IRepository<Knjiga> Knjige { get; }
+    public IRepository<ParkingLot> Parkinzi { get;  }
+    public IRepository<Senzor> Senzori { get;  }
+    public IRepository<Kontroler> Kontroleri { get;  }
+    public IRepository<Film> Filmovi { get;  }
+    public IRepository<CrossRoad> Raskrsnice { get; }
 
     Task<int> CompleteAsync();
 }
