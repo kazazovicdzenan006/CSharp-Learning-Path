@@ -8,11 +8,13 @@ namespace Data.Context
 {
     public class MasterContext : DbContext
     {
+        public MasterContext(DbContextOptions<MasterContext> options) : base(options) { }
+      
         public DbSet<Person> People { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server = (localdb)\\mssqllocaldb; Database = Exam2; Trusted_Connection = True;");
+            optionsBuilder.UseSqlServer("Server = (localdb)\\mssqllocaldb; Database = Exam2; Trusted_Connection = True; TrustServerCertificate=True;");
         }
 
 

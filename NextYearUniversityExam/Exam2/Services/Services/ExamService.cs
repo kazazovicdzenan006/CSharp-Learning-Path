@@ -15,23 +15,31 @@ namespace Services.Services
             _unit = unit;
         }
 
+        public async Task<IEnumerable<Person>> GetData()
+        {
+            return await _unit.people.GetAllData();
+        }
+
+        public async Task<Client> GetClientById(int id)
+        {
+            return await _unit.client.FindById(id);
+        }
+
+        public async Task<Worker> GetWorkerById(int id)
+        {
+            return await _unit.worker.FindById(id);
+        }
+
         public async Task AddClient(Client obj)
         {
-         
-            if(await _unit.client.FindById(obj.Id) != null)
-            {
-                throw new Exception("Client with that id already exists");
-            }
+       
 
             await _unit.client.AddObject(obj);
             await _unit.CompleteSave();
         }
         public async Task AddWorker(Worker obj)
         {
-            if (await _unit.worker.FindById(obj.Id) != null)
-            {
-                throw new Exception("Worker with that id already exists");
-            }
+         
             await _unit.worker.AddObject(obj);
             await _unit.CompleteSave();
         }
