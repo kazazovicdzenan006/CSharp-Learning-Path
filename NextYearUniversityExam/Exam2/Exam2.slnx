@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Data/Data.csproj" />
+  <Project Path="Domain/Domain.csproj" />
+  <Project Path="ImprovedExamWithApi/ImprovedExamWithApi.csproj" />
+  <Project Path="Services/Services.csproj" />
+</Solution>
