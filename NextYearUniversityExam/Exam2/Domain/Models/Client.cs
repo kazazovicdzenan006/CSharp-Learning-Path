@@ -1,6 +1,7 @@
 ﻿using Domain.Delegates;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -16,8 +17,8 @@ namespace Domain.Models
             this.CompanyName = company;
             this.Email = email;
         }
-
-        public string CompanyName { get; set; }
+        [Required(ErrorMessage = "Field Company Name is required")]
+        public required string CompanyName { get; set; }
         public string? Email { get; set; }
         
         [NotMapped]
