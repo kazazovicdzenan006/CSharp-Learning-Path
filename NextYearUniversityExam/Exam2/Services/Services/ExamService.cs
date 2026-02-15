@@ -19,7 +19,10 @@ namespace Services.Services
         {
             return await _unit.people.GetAllData();
         }
-
+        public async Task<IEnumerable<Client>> GetClients()
+        {
+            return await _unit.client.GetAllData();
+        }
         public async Task<Client> GetClientById(int id)
         {
             return await _unit.client.FindById(id);

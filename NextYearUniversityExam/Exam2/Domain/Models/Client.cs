@@ -26,11 +26,6 @@ namespace Domain.Models
 
         public string Format() =>  $"ID: {Id}, Name: {Name}, Company name: {CompanyName}, Email: {Email}";
 
-
-
-
-       
-
     }
 
 }

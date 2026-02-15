@@ -3,7 +3,7 @@ using Data.UnitOfWork;
 using Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Services.Services;
-
+using AutoMapper;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -15,6 +15,11 @@ builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ExamService>();
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<Services.Profiles.ClientProfile>();
+    // cfg.AddProfile<Services.Profiles.WorkerProfile>(); 
+});
 
 
 
