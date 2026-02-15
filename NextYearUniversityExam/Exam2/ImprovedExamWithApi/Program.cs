@@ -18,7 +18,7 @@ builder.Services.AddScoped<ExamService>();
 builder.Services.AddAutoMapper(cfg =>
 {
     cfg.AddProfile<Services.Profiles.ClientProfile>();
-    // cfg.AddProfile<Services.Profiles.WorkerProfile>(); 
+    cfg.AddProfile<Services.Profiles.WorkerProfile>(); 
 });
 
 

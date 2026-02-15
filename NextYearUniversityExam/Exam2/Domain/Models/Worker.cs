@@ -8,7 +8,7 @@ namespace Domain.Models
     public class Worker : Person
     {
         public Worker() { }
-        public Worker(int id, string name, string position, double experience)
+        public Worker(int id, string name, string position, double? experience)
         {
             Id = id;
             Name = name;

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Services;
 using Services.DTOs.ClientDTOs;
+using Services.DTOs.WorkerDtos;
 
 namespace ImprovedExamWithApi.Controllers
 {
@@ -20,32 +21,36 @@ namespace ImprovedExamWithApi.Controllers
             _mapper = mapper;
         }
 
+        /*
         [HttpGet]
         public async Task<IEnumerable<Person>> GetAllData()
         {
             return await _service.GetData();
          
         }
+        */
 
         [HttpGet("Most-Experienced")]
-        public async Task<ActionResult<Worker>> GetMostExperienced()
+        public async Task<ActionResult<WorkerReadDto>> GetMostExperienced()
         {
             var exp = await _service.MostExperiencedWorker();
             if (exp == null)
             {
                 return NotFound("Not found any worker with experience");
             }
-            return Ok(exp);
+            var expDto = _mapper.Map<WorkerReadDto>(exp);
+            return Ok(expDto);
         }
 
         [HttpGet("Grouped-Workers")]
-        public async Task<ActionResult<IEnumerable<Worker>>> GetGrouped()
+        public async Task<ActionResult<IEnumerable<WorkerReadDto>>> GetGrouped()
         {
             var group = await _service.GroupedWorkers();
             if(group == null)
             {
                 return NotFound("No workers");
             }
+            // can do without dto because method returns only allowed data
             return Ok(group);
 
         }
@@ -75,7 +80,7 @@ namespace ImprovedExamWithApi.Controllers
 
         }
 
-        [HttpPut("Update-Client")]
+        [HttpPut("Update-Client{id}")]
         public async Task <IActionResult> UpdateClient(int id, ClientUpdateDto obj)
         {
             var existingClient = await _service.GetClientById(id);
@@ -101,28 +106,56 @@ namespace ImprovedExamWithApi.Controllers
                 return Ok();
             }catch(Exception ex) { return BadRequest(ex.Message); }
         }
-        [HttpPost("Add-Worker")]
-        public async Task AddWorker(Worker obj)
+
+
+
+
+
+        [HttpGet("Get-All-Workers", Name = "AllWorkers")]
+        public async Task<ActionResult<IEnumerable<WorkerReadDto>>> GetAllWorkers()
         {
-            await _service.AddWorker(obj);
+
+            var workers = await _service.GetWorkers();
+            var workersDto = _mapper.Map<IEnumerable<WorkerReadDto>>(workers);
+            return Ok(workersDto);
         }
 
-        [HttpPut("Update-Worker")]
-        public async Task<IActionResult> UpdateWorker(Worker obj)
+
+        [HttpPost("Add-Worker")]
+        public async Task<ActionResult> AddWorker(WorkerCreateDto obj)
         {
+            var workerCreate = _mapper.Map<Worker>(obj);
             try
             {
-                await _service.UpdateWorker(obj);
-                return Ok();
+                await _service.AddWorker(workerCreate);
+                return Created();
+            }catch(Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        [HttpPut("Update-Worker{id}")]
+        public async Task<IActionResult> UpdateWorker(int id, WorkerUpdateDto obj)
+        {
+            var existingWorker = await _service.GetWorkerById(id);
+            if (existingWorker == null) return NotFound("There is no worker with that id");
+             _mapper.Map(obj, existingWorker);
+            
+
+
+            try
+            {
+                await _service.UpdateWorker(existingWorker);
+                return NoContent();
             }catch(Exception ex) { return BadRequest(ex.Message); }
         }
         [HttpDelete("Delete-Worker")]
         public async Task<IActionResult> DeleteWorker(int id)
         {
+            var exist = await _service.GetWorkerById(id);
+            if (exist == null) return NotFound("There is no worker with that id"); 
             try
             {
-                var delete = await _service.GetWorkerById(id);
-                await _service.RemoveWorker(delete);
+                
+                await _service.RemoveWorker(exist);
                 return Ok();
             }catch(Exception ex) { return BadRequest(ex.Message); }
 

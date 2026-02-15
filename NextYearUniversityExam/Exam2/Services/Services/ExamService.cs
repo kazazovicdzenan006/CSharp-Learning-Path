@@ -23,6 +23,11 @@ namespace Services.Services
         {
             return await _unit.client.GetAllData();
         }
+
+        public async Task<IEnumerable<Worker>> GetWorkers()
+        {
+            return await _unit.worker.GetAllData();
+        }
         public async Task<Client> GetClientById(int id)
         {
             return await _unit.client.FindById(id);
