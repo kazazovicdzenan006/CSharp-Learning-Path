@@ -75,5 +75,91 @@ namespace API_UI.Controllers
             return await _service.GetDostupnost(MovieName);
         }
 
+
+
+        [HttpPost("AddBook", Name = "AddBook")]
+        public async Task<ActionResult<BooksCreateDto>> AddNewBook(BooksCreateDto obj)
+        {
+            var book = _map.Map<Knjiga>(obj);
+      
+            try
+            {
+                await _service.AddNewBook(book);
+                var readDto = _map.Map<BooksReadDto>(book);
+                return CreatedAtRoute("AddBook", readDto);
+
+            }catch (LibraryLimitException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+
+        [HttpPost("AddMovie", Name = "AddMovie")]
+        public async Task<ActionResult<FilmCreateDto>> AddNewMovie(FilmCreateDto obj)
+        {
+            var movie = _map.Map<Film>(obj);
+
+            try
+            {
+                await _service.AddNewFilm(movie);
+                var readDto = _map.Map<FilmReadDto>(movie);
+                return CreatedAtRoute("AddMovie", readDto);
+
+            }
+            catch (LibraryLimitException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+        [HttpPut("UpdateBook{id}")]
+        public async Task<ActionResult> UpdateBook(int id, BooksUpdateDto obj)
+        {
+            var book = _map.Map<Knjiga>(obj);
+            try
+            {
+                await _service.UpdateArtikal(id, book);
+                return NoContent();
+            }catch(Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        [HttpPut("UpdateMovie{id}")]
+        public async Task<ActionResult> UpdateMovie(int id, FilmUpdateDto obj)
+        {
+            var movie = _map.Map<Film>(obj);
+            try
+            {
+                await _service.UpdateArtikal(id, movie);
+                return NoContent();
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+
+
+        [HttpDelete("DeleteBook{id}")]
+        public async Task<ActionResult> DeleteBook(int id)
+        {
+            try
+            {
+                await _service.DeleteArtikal(id);
+                return NoContent();
+            }catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        [HttpDelete("DeleteMovie{id}")]
+        public async Task<ActionResult> DeleteMovie(int id)
+        {
+            try
+            {
+                await _service.DeleteArtikal(id);
+                return NoContent();
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
     }
 }

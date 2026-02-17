@@ -12,7 +12,7 @@ namespace Services.DTOs.BooksDtos
         public string Autor { get; set; }
         public int BrojStranica { get; set; }
 
-
+     
 
     }
 }

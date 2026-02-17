@@ -11,6 +11,7 @@ namespace Services.DTOs.FilmDtos
         public string Reziser { get; set; }
 
         public double TrajanjeUMinutama { get; set; }
+        public int GradId { get; set; }
 
 
     }

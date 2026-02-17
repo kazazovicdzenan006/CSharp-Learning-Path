@@ -11,5 +11,6 @@ namespace Services.DTOs.BooksDtos
         public int GodinaIzdanja { get; set; }
         public string Autor { get; set; }
         public int BrojStranica { get; set; }
+        public int GradId { get; set; }
     }
 }

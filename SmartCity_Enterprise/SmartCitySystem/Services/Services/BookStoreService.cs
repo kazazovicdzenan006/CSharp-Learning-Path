@@ -87,7 +87,7 @@ public class BookStoreService
 
         existingArtikal.Naslov = updatedData.Naslov;
         existingArtikal.GodinaIzdanja = updatedData.GodinaIzdanja;
-        existingArtikal.GradId = updatedData.GradId;
+        //existingArtikal.GradId = updatedData.GradId;
 
 
         if (existingArtikal is Knjiga eKnjiga && updatedData is Knjiga nKnjiga)
@@ -107,10 +107,11 @@ public class BookStoreService
     {
         return await _unit.Artikli.GetByIdAsync(id);
     }
+  
 
 
 
-    public async Task DeleteDevice(int id)
+    public async Task DeleteArtikal(int id)
     {
         var Artikal = await _unit.Artikli.GetByIdAsync(id);
 
@@ -119,6 +120,7 @@ public class BookStoreService
             _unit.Artikli.Delete(Artikal);
             await _unit.CompleteAsync();
         }
+        else throw new Exception("There is no item with that id");
 
     }
 
@@ -147,6 +149,17 @@ public class BookStoreService
     public async Task AddNewItem(BibliotekaArtikal item)
     {
         await _unit.Artikli.AddAsync(item);
+        await _unit.CompleteAsync();
+    }
+    public async Task AddNewBook(Knjiga item)
+    {
+        await _unit.Knjige.AddAsync(item);
+        await _unit.CompleteAsync();
+    }
+
+    public async Task AddNewFilm(Film item)
+    {
+        await _unit.Filmovi.AddAsync(item);
         await _unit.CompleteAsync();
     }
 

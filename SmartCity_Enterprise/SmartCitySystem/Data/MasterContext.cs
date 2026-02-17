@@ -8,6 +8,8 @@ using Domain.Models;
 using Microsoft.Extensions.Options;
 public class MasterContext : DbContext
 {
+    public MasterContext() { }
+  
     public MasterContext(DbContextOptions<MasterContext> options) : base(options) { }
 
     public DbSet<Grad> Gradovi { get; set; }
