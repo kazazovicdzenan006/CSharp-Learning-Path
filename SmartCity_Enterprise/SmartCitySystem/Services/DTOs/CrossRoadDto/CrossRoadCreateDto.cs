@@ -4,7 +4,12 @@ using System.Text;
 
 namespace Services.DTOs.CrossRoadDto
 {
-    internal class CrossRoadCreateDto
+    public class CrossRoadCreateDto
     {
+        public string CityZone { get; set; }
+        public string StreetName { get; set; }
+        public string CrossName { get; set; }
+        public double TrafficJamPercantage { get; set; }
+
     }
 }

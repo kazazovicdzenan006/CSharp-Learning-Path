@@ -9,10 +9,10 @@ using Services.DTOs.FilmDtos;
 
 namespace Services.Profiles
 {
-    public class FimlProfile : Profile
+    public class FilmProfile : Profile
     {
 
-        public FimlProfile()
+        public FilmProfile()
         {
             CreateMap<Film, FilmReadDto>();
             CreateMap<FilmCreateDto, Film>();

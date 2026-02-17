@@ -5,6 +5,9 @@ using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Domain.Models;
+using Services.DTOs.BookStoreAnalizeDtos;
+using System.ComponentModel;
+using Services.DTOs.BooksDtos;
 
 public class BookStoreService
 {
@@ -28,37 +31,50 @@ public class BookStoreService
 
     // we don't need method SaveCurrentState because we have now database and Method AddNewItem do all hardwork
 
-
-    public async Task<string> Analiza()
+    public async Task<List<GroupedByAuthorDto>> GroupedByAuthor()
     {
-
-        var sb = new StringBuilder(); // we use StringBuilder instead of writer (delegate) so we can get maximum layer independency
-                                      // and also full clean architecture (Separation of Concerns)
-
-        sb.AppendLine("\n \nBooks Grouped by Author: \n");
-        var poAutoru = await Knjige.GroupBy(x => x.Autor).Select(grupa => new { imeAutora = grupa.Key, prosjekStranica = grupa.Average(k => (double?)k.BrojStranica) ?? 0.0, brojKnjiga = grupa.Count() }).ToListAsync();
-
-        poAutoru.ForEach(x => sb.AppendLine($"autor: {x.imeAutora}, Prosjek stranica: {x.prosjekStranica}, Ukupno knjiga: {x.brojKnjiga}"));
-
-        sb.AppendLine("\nBooks with more than 300 pages and name that starts with letter s: \n");
-        var filter = await Knjige.Where(x => x.BrojStranica > 300 && x.Naslov.StartsWith("s")).ToListAsync(); // now we don't have to use ToLower
-                                                                                                              // because we are working with database and sql is case insensitive 
-        filter.ForEach(x => sb.AppendLine($"Knjiga: {x.Naslov}, godinaIzdanja: {x.GodinaIzdanja}, Autor {x.Autor}, broj Stranica {x.BrojStranica}"));
-
-        sb.AppendLine("\nMovies grouped by movie director: \n");
-        var poReziseru = await Filmovi
-     .GroupBy(x => x.Reziser)
-     .Select(group => new {
-         reziser = group.Key,
-         maksTrajanje = group.Max(f => (int?)f.TrajanjeUMinutama) ?? 0,
-         // (int?) casting int to nullable value and if it is null it will return 0 (?? 0)
-         brojFilmova = group.Count()
-     }).ToListAsync();
-        poReziseru.ForEach(x => sb.AppendLine($"Reziser: {x.reziser}, najduze trajanje filma {x.maksTrajanje}, broj filmova {x.brojFilmova}"));
-
-        return sb.ToString();
+        return await Knjige
+        .GroupBy(x => x.Autor)
+        .Select(grupa => new GroupedByAuthorDto()
+        {
+            imeAutora = grupa.Key,
+            prosjekStranica = grupa.Average(k => (double?)k.BrojStranica) ?? 0.0,
+            brojKnjiga = grupa.Count()
+        }).ToListAsync();
 
     }
+
+    public async Task<IEnumerable<Knjiga>> GetBooks()
+    {
+        return await _unit.Knjige.GetAllAsync();
+    }
+    public async Task<IEnumerable<Film>> GetMovies()
+    {
+        return await _unit.Filmovi.GetAllAsync();
+    }
+
+
+    public async Task<IEnumerable<Knjiga>> LongBooks()
+    {
+      var data = await Knjige
+            .Where(x => x.BrojStranica > 300).ToListAsync();
+   
+        return data;
+    }
+
+    public async Task<List<MoviesByDirectorDto>> GroupedByDirector()
+    {
+        return await Filmovi
+            .GroupBy(x => x.Reziser)
+            .Select(group => new MoviesByDirectorDto()
+            {
+                reziser = group.Key,
+                maksTrajanje = group.Max(f => (int?)f.TrajanjeUMinutama) ?? 00,
+                brojFilmova = group.Count()
+            })
+            .ToListAsync();
+    }
+   
 
 
     public async Task UpdateArtikal(int id, BibliotekaArtikal updatedData)
@@ -134,13 +150,13 @@ public class BookStoreService
         await _unit.CompleteAsync();
     }
 
-    public async Task<string> GetDostupnost(string FilmName)
+    public async Task<bool> GetDostupnost(string FilmName)
     {
         // radi i klasicna opcija ali .ToLower kreira novi privremeni string koji GC mora ocistiti, dok StringComparison radi u hodu, ne kreira nove stringove vec odmah provjerava karakter po karakter
         bool postoji = await Filmovi.AsNoTracking().AnyAsync(x => x.Naslov == FilmName);
         // bool postoji = _biblioteka.Any(x => x is Film && ((Film)x).Naslov.ToLower() == FilmName.ToLower());
 
-        return postoji ? "We have that movie in our collection" : "Sorry we don't have that movie in our collection";
+        return postoji;
     }
 
     public async Task<List<Grad>> GetAllCitiesAsync()

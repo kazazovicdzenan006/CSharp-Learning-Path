@@ -4,9 +4,12 @@
 
 
 using Microsoft.EntityFrameworkCore;
-using Domain.Models; 
+using Domain.Models;
+using Microsoft.Extensions.Options;
 public class MasterContext : DbContext
 {
+    public MasterContext(DbContextOptions<MasterContext> options) : base(options) { }
+
     public DbSet<Grad> Gradovi { get; set; }
 
     public DbSet<BibliotekaArtikal> Artikli { get; set; }
