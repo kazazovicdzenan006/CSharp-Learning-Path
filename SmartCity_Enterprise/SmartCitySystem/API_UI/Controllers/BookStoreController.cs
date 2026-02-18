@@ -5,6 +5,7 @@ using Services.DTOs.BooksDtos;
 using Services.DTOs.BookStoreAnalizeDtos;
 using Services.DTOs.BookStoreItemsDto;
 using Services.DTOs.FilmDtos;
+using Services.DTOs.GradDtos;
 using System.Numerics;
 
 namespace API_UI.Controllers
@@ -47,6 +48,14 @@ namespace API_UI.Controllers
 
         }
 
+        [HttpGet("AllCities")]
+        public async Task<ActionResult<IEnumerable<GradReadDto>>> GetAllCities()
+        {
+            var cities = await _service.GetAllCitiesAsync();
+            var citiesDto = _map.Map<IEnumerable<GradReadDto>>(cities);
+            return Ok(citiesDto);
+        }
+
         [HttpGet("BooksByAuthor")]
         public async Task<ActionResult<IEnumerable<GroupedByAuthorDto>>> BooksByAuthor()
         {
@@ -69,7 +78,7 @@ namespace API_UI.Controllers
             return Ok(await _service.GroupedByDirector());
         }
 
-        [HttpGet("MovieAvailability{MovieName}")]
+        [HttpGet("MovieAvailability/{MovieName}")]
         public async Task<bool> GetAvailability(string MovieName)
         {
             return await _service.GetDostupnost(MovieName);
@@ -82,16 +91,11 @@ namespace API_UI.Controllers
         {
             var book = _map.Map<Knjiga>(obj);
       
-            try
-            {
+         
                 await _service.AddNewBook(book);
                 var readDto = _map.Map<BooksReadDto>(book);
                 return CreatedAtRoute("AddBook", readDto);
 
-            }catch (LibraryLimitException ex)
-            {
-                return BadRequest(ex.Message);
-            }
 
         }
 
@@ -101,64 +105,51 @@ namespace API_UI.Controllers
         {
             var movie = _map.Map<Film>(obj);
 
-            try
-            {
                 await _service.AddNewFilm(movie);
                 var readDto = _map.Map<FilmReadDto>(movie);
                 return CreatedAtRoute("AddMovie", readDto);
 
-            }
-            catch (LibraryLimitException ex)
-            {
-                return BadRequest(ex.Message);
-            }
 
         }
 
-        [HttpPut("UpdateBook{id}")]
+        [HttpPut("UpdateBook/{id}")]
         public async Task<ActionResult> UpdateBook(int id, BooksUpdateDto obj)
         {
             var book = _map.Map<Knjiga>(obj);
-            try
-            {
+          
                 await _service.UpdateArtikal(id, book);
                 return NoContent();
-            }catch(Exception ex) { return BadRequest(ex.Message); }
+          
         }
 
-        [HttpPut("UpdateMovie{id}")]
+        [HttpPut("UpdateMovie/{id}")]
         public async Task<ActionResult> UpdateMovie(int id, FilmUpdateDto obj)
         {
             var movie = _map.Map<Film>(obj);
-            try
-            {
+         
                 await _service.UpdateArtikal(id, movie);
                 return NoContent();
-            }
-            catch (Exception ex) { return BadRequest(ex.Message); }
+          
         }
 
 
 
-        [HttpDelete("DeleteBook{id}")]
+        [HttpDelete("DeleteBook/{id}")]
         public async Task<ActionResult> DeleteBook(int id)
         {
-            try
-            {
+           
                 await _service.DeleteArtikal(id);
                 return NoContent();
-            }catch (Exception ex) { return BadRequest(ex.Message); }
+          
         }
 
-        [HttpDelete("DeleteMovie{id}")]
+        [HttpDelete("DeleteMovie/{id}")]
         public async Task<ActionResult> DeleteMovie(int id)
         {
-            try
-            {
+          
                 await _service.DeleteArtikal(id);
                 return NoContent();
-            }
-            catch (Exception ex) { return BadRequest(ex.Message); }
+          
         }
 
     }

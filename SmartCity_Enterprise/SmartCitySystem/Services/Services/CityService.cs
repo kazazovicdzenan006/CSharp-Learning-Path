@@ -1,6 +1,7 @@
 ﻿
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using System.Text;
 
 public class CityService
@@ -37,6 +38,38 @@ public class CityService
     public async Task<List<Grad>> GetAvailableCities()
     {
         return (await _unit.Gradovi.GetAllAsync()).ToList();
+    }
+    public async Task<Grad> GetCityById(int id)
+    {
+        return await _unit.Gradovi.GetByIdAsync(id);
+    }
+
+    public async Task AddCity(Grad city)
+    {
+            await _unit.Gradovi.AddAsync(city);
+            await _unit.CompleteAsync();
+    }
+
+    public async Task DeleteCity(int id)
+    {
+        var city = await _unit.Gradovi.GetByIdAsync(id);
+        if (city != null)
+        {
+            _unit.Gradovi.Delete(city);
+            await _unit.CompleteAsync();
+        }
+        else throw new Exception("There is no city with that id");
+    }
+
+    public async Task UpdateCity(int id, Grad city)
+    {
+        var toUpdate = await _unit.Gradovi.GetByIdAsync(id);
+        if (toUpdate != null)
+        {
+            toUpdate.Name = city.Name;
+            _unit.Gradovi.Update(toUpdate);
+            await _unit.CompleteAsync();
+        }else { throw new Exception("Couldn't find city with that id"); }
     }
     public async Task<string> TrafficJamByZones()
     {

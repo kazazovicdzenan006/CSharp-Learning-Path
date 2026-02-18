@@ -1,3 +1,4 @@
+using API_UI.Middleware;
 using Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,6 +40,7 @@ builder.Services.AddAutoMapper(cfg =>
 
 
 var app = builder.Build();
+app.UseMiddleware<ExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -54,5 +56,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
 
 app.Run();

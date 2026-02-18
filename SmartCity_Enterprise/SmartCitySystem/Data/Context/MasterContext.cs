@@ -37,6 +37,9 @@ public class MasterContext : DbContext
         modelBuilder.Entity<Senzor>().ToTable("Senzors");
         modelBuilder.Entity<Kontroler>().ToTable("Controllers");
 
+
+
+
         modelBuilder.Entity<BibliotekaArtikal>()
             .HasOne(a => a.Grad)
             .WithMany(g => g.BookStoreInventory)
@@ -57,9 +60,10 @@ public class MasterContext : DbContext
         modelBuilder.Entity<CityNode>()
             .HasOne(a => a.Grad)
             .WithMany(g => g.CityNodes)
-            .HasForeignKey(k => k.GradId); 
+            .HasForeignKey(k => k.GradId);
 
-
+        modelBuilder.Entity<Grad>()
+            .HasKey(k => k.Id);
     }
 
 }

@@ -7,7 +7,7 @@ namespace Services.DTOs.GradDtos
 {
     public class GradReadDto
     {
-        public int GradId { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; }
 
     }
