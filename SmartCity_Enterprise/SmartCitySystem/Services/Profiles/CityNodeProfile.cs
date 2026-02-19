@@ -13,7 +13,10 @@ namespace Services.Profiles
 
         public CityNodeProfile()
         {
-            CreateMap<CityNode, CityNodeReadDto>().ForMember(dest => dest.GradId, opt => opt.MapFrom(src => src.Grad.Name));
+            CreateMap<CityNode, CityNodeReadDto>()
+                .ForMember(dest => dest.GradName, opt => opt.MapFrom(src => src.Grad.Name)) 
+        .ForMember(dest => dest.GradId, opt => opt.MapFrom(src => src.GradId))
+        .IncludeAllDerived(); 
         }
 
     }

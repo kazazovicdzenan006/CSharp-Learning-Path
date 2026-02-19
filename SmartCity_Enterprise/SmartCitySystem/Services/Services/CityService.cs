@@ -2,7 +2,9 @@
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
+using Services.DTOs.CityAnaliticsDto;
 
 public class CityService
 {
@@ -16,23 +18,24 @@ public class CityService
         _unit = unit;
     }
   
-    public async Task<string> AllLocaations()
+    public async Task<IEnumerable<CityNode>> AllLocaations()
     {
-        var _allNodes = await _unit.CityNodes.GetAllAsync();
-        var sp = new StringBuilder();
-        foreach (var node in _allNodes)
-        {
-            string info = $"[{node.GetType().Name}] ID: {node.Id}, Zona {node.CityZone}, Adresa {node.StreetName}";
-            sp.AppendLine(info);
-        }
-        return sp.ToString();
+        var _allNodes = await _unit.CityNodes
+            .GetQueryable()
+            .Include(x => x.Grad)
+            .ToListAsync();
+
+        return _allNodes;
     }
 
 
     public async Task<List<CityNode>> GetReportData()
     {
-        var data = await _unit.CityNodes.GetAllAsync();
-        return data.ToList();
+        var data = await _unit.CityNodes
+            .GetQueryable()
+            .Include(x => x.Grad)
+            .ToListAsync();
+        return data;
     }
 
     public async Task<List<Grad>> GetAvailableCities()
@@ -71,47 +74,37 @@ public class CityService
             await _unit.CompleteAsync();
         }else { throw new Exception("Couldn't find city with that id"); }
     }
-    public async Task<string> TrafficJamByZones()
+    public async Task<List<CrossRoadJamDto>> TrafficJamByZones()
     {
        
         
-        var rezultati = await crossRoads
+        return await crossRoads
             .GroupBy(x => x.CityZone)
-            .Select(g => new { zona = g.Key, prosjek = g.Average(x => (double?)x.TrafficJamPercantage ?? 0.0) }).ToListAsync();
-        var sp = new StringBuilder();
-
-        foreach (var r in rezultati)
-        {
-            sp.AppendLine($"Zona {r.zona} | Average Traffic jam {r.prosjek}%");
-        }
-        return sp.ToString();
-    }
-
-
-    public async Task<string> AnalizeCriticalPoints()
-    {
+            .Select(g => new CrossRoadJamDto { zona = g.Key, 
+                prosjek = g.Average(x => (double?)x.TrafficJamPercantage ?? 0.0) })
+            .ToListAsync();
        
-        
-        var sp = new StringBuilder();
-        var HighJamCrossRoads = crossRoads.OfType<CrossRoad>().Where(x => x.TrafficJamPercantage > 80);
-        var HighlyOcuppiedParkingLots = parkingLots.Where(x => x.AvailableParkingSpots < 5);
-        if (HighJamCrossRoads.Any())
-        {
-            foreach (var item in HighJamCrossRoads)
-            {
-                sp.AppendLine($"Crossroad {item.CrossName} in zone {item.CityZone} has high traffic jam of {item.TrafficJamPercantage}%");
-            }
-        }
-        if (HighlyOcuppiedParkingLots.Any())
-        {
-            foreach (var p in HighlyOcuppiedParkingLots)
-            {
-                sp.AppendLine($"Parking {p.ParkingName} in zone {p.CityZone} has only {p.AvailableParkingSpots} available spots left");
-            }
-        }
-        return sp.ToString();
     }
 
+
+    public async Task<IEnumerable<CrossRoad>> HighJamCrossRoads()
+    {
+        var query = crossRoads.OfType<CrossRoad>().Where(x => x.TrafficJamPercantage > 80);
+
+        var data = await query.ToListAsync();
+
+        return data;
+    }
+
+
+    public async Task<IEnumerable<ParkingLot>> HighlyOccupiedParkingLots()
+    {
+        var query = parkingLots.Where(x => x.AvailableParkingSpots < 5);
+
+        var data = await query.ToListAsync();
+
+        return data;
+    }
 
 
     public async Task<List<Grad>> GetAllCitiesAsync()
