@@ -12,7 +12,10 @@ namespace Services.Profiles
 
         public BookStoreItemsProfile()
         {
-            CreateMap<BibliotekaArtikal, BookStoreItemsReadDto>().ForMember(dest => dest.GradId, opt => opt.MapFrom(src => src.Grad.Name));
+            CreateMap<BibliotekaArtikal, BookStoreItemsReadDto>()
+                .ForMember(dest => dest.GradName, opt => opt.MapFrom(src => src.Grad.Name))
+                .ForMember(dest => dest.GradId, opt => opt.MapFrom(src => src.GradId))
+                .IncludeAllDerived();
         }
 
     }

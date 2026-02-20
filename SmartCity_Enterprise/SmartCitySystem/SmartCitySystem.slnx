@@ -3,5 +3,4 @@
   <Project Path="Data/Data.csproj" />
   <Project Path="Domain/Domain.csproj" />
   <Project Path="Services/Services.csproj" />
-  <Project Path="UI/UI.csproj" />
 </Solution>

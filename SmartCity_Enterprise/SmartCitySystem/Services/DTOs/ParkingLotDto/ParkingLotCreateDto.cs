@@ -11,6 +11,7 @@ namespace Services.DTOs.ParkingLotDto
         public string ParkingName { get; set; }
         public int TotalParkingSpots { get; set; }
         public int AvailableParkingSpots { get; set; }
+        public int GradId { get; set; }
 
     }
 }

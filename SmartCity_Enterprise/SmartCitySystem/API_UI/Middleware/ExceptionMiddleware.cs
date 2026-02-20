@@ -36,43 +36,36 @@ namespace API_UI.Middleware
         {
             context.Response.ContentType = "application/json";
 
-            //context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var statusCode = HttpStatusCode.InternalServerError;
             var message = "Unexpected error";
 
-            if (exception is LibraryLimitException)
+
+            if (exception is CityExceptionSystem || exception.InnerException is CityExceptionSystem)
             {
                 statusCode = HttpStatusCode.BadRequest;
-                message = exception.Message;
+
+                message = exception is CityExceptionSystem ? exception.Message : exception.InnerException.Message;
             }
-            else if (exception is DeviceLimitException)
+
+            else if (exception is LibraryLimitException || exception.InnerException is LibraryLimitException)
             {
                 statusCode = HttpStatusCode.BadRequest;
-                message = exception.Message;
+                message = exception is LibraryLimitException ? exception.Message : exception.InnerException.Message;
             }
-            else if (exception is CityExceptionSystem)
-            {
-                statusCode = HttpStatusCode.BadRequest;
-                message = exception.Message;
-            }
+
+       
+            context.Response.StatusCode = (int)statusCode;
 
             var response = new
             {
                 StatusCode = context.Response.StatusCode,
                 Message = message,
-                Detailed = exception.Message
+                Detailed = exception.Message 
             };
 
-
             var json = JsonSerializer.Serialize(response);
-
             return context.Response.WriteAsync(json);
-
         }
-
-
-
-
 
     }
 }

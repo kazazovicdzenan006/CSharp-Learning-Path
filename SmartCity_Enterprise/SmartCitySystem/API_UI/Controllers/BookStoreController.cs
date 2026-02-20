@@ -23,7 +23,7 @@ namespace API_UI.Controllers
         }
 
         [HttpGet("AllData")]
-        public async Task<ActionResult<IEnumerable<BibliotekaArtikal>>> GetAllData()
+        public async Task<ActionResult<IEnumerable<BookStoreItemsReadDto>>> GetAllData()
         {
             var data = await _service.GetReportData();
             var dataDto = _map.Map<IEnumerable<BookStoreItemsReadDto>>(data);

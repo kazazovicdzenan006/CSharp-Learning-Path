@@ -117,63 +117,71 @@ public class CityService
     {
         return await _unit.CityNodes.GetByIdAsync(id);
     }
-
-    public async Task UpdateNode(int id, CityNode updatedData)
+    public async Task<CrossRoad> GetCrossRoadById(int id)
     {
-        var existingNode = await _unit.CityNodes.GetByIdAsync(id);
+        return await _unit.Raskrsnice.GetByIdAsync(id);
+    }
+    public async Task<ParkingLot> GetParkingById(int id)
+    {
+        return await _unit.Parkinzi.GetByIdAsync(id);
+    }
 
-        if (existingNode == null) throw new Exception("City node not found!");
+    // --- PARKING LOT ---
+    public async Task AddParkingLot(ParkingLot parking)
+    {
+        await _unit.CityNodes.AddAsync(parking);
+        var result = await _unit.CompleteAsync();
+        if (result <= 0) throw new Exception("Failed to add parking lot to the database!");
+    }
 
-        existingNode.CityZone = updatedData.CityZone;
-        existingNode.StreetName = updatedData.StreetName;
-        existingNode.GradId = updatedData.GradId;
+    public async Task UpdateParkingLot(int id, ParkingLot updatedData)
+    {
+        var existing = await _unit.CityNodes.GetByIdAsync(id) as ParkingLot;
+        if (existing == null) throw new Exception("Parking lot not found!");
+
+        existing.CityZone = updatedData.CityZone;
+        existing.StreetName = updatedData.StreetName;
 
 
-        if (existingNode is ParkingLot existingParking && updatedData is ParkingLot newParking)
-        {
-            existingParking.ParkingName = newParking.ParkingName;
-            existingParking.TotalParkingSpots = newParking.TotalParkingSpots;
-            existingParking.AvailableParkingSpots = newParking.AvailableParkingSpots;
-        }
-        else if (existingNode is CrossRoad existingCross && updatedData is CrossRoad newCross)
-        {
-            existingCross.CrossName = newCross.CrossName;
-            existingCross.TrafficJamPercantage = newCross.TrafficJamPercantage;
-        }
+        existing.ParkingName = updatedData.ParkingName;
+        existing.TotalParkingSpots = updatedData.TotalParkingSpots;
+        existing.AvailableParkingSpots = updatedData.AvailableParkingSpots;
 
         await _unit.CompleteAsync();
     }
 
+    // --- CROSSROAD ---
+    public async Task AddCrossRoad(CrossRoad crossRoad)
+    {
+        await _unit.CityNodes.AddAsync(crossRoad);
+        var result = await _unit.CompleteAsync();
+        if (result <= 0) throw new Exception("Failed to add crossroad to the database!");
+    }
+
+    public async Task UpdateCrossRoad(int id, CrossRoad updatedData)
+    {
+        var existing = await _unit.CityNodes.GetByIdAsync(id) as CrossRoad;
+        if (existing == null) throw new Exception("Crossroad not found!");
+
+        existing.CityZone = updatedData.CityZone;
+        existing.StreetName = updatedData.StreetName;
+
+
+        existing.CrossName = updatedData.CrossName;
+        existing.TrafficJamPercantage = updatedData.TrafficJamPercantage;
+
+        await _unit.CompleteAsync();
+    }
+
+    // --- DELETE ---
     public async Task DeleteNode(int id)
     {
         var node = await _unit.CityNodes.GetByIdAsync(id);
-        if (node != null)
-        {
-            _unit.CityNodes.Delete(node) ;
-            await _unit.CompleteAsync();
-        }
-    }
+        if (node == null) throw new Exception("Node not found!");
 
-
-
-    public async Task AddNode(CityNode novi)
-    {
-        /*
-        SafeExecutor.Execute(async () =>
-        {
-            await _context.CityNodes.AddAsync(novi);
-            await _context.SaveChangesAsync();
-        }); */
-
-        try
-        {
-            await _unit.CityNodes.AddAsync(novi);
-            await _unit.CompleteAsync();
-        }
-        catch (CityExceptionSystem ex) { }
-
-
-
+        _unit.CityNodes.Delete(node);
+        var result = await _unit.CompleteAsync();
+        if (result <= 0) throw new Exception("Failed to delete node from the database!");
     }
 }
 

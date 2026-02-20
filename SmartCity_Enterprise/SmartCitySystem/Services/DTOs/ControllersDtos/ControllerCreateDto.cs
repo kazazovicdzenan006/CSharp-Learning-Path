@@ -11,6 +11,7 @@ namespace Services.DTOs.ControllersDtos
         public bool Status { get; set; }
 
         public int BrojKanala { get; set; }
+        public int GradId { get; set; }
 
     }
 }

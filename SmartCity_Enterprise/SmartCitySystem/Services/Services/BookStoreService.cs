@@ -130,11 +130,14 @@ public class BookStoreService
         return (await _unit.Gradovi.GetAllAsync()).ToList();
     }
 
-    public async Task<List<BibliotekaArtikal>> GetReportData()
+    public async Task<IEnumerable<BibliotekaArtikal>> GetReportData()
     {
-        var AllData = await _unit.Artikli.GetAllAsync();
+        var AllData = await _unit.Artikli
+            .GetQueryable()
+            .Include(x => x.Grad)
+            .ToListAsync();
         // if we will only read data, we use .AsNoTracking() so we don't waste resources for monitoring data
-        return AllData.ToList();
+        return AllData;
     }
 
 
