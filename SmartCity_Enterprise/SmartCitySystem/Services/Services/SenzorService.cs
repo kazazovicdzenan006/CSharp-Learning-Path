@@ -37,7 +37,10 @@ public class SenzorService
 
     public async Task<IEnumerable<Uredjaj>> GetAllDevices()
     {
-        return await _unit.Uredjaji.GetQueryable().Include(x => x.Grad).ToListAsync();
+        return await _unit.Uredjaji
+            .GetQueryable()
+            .Include(x => x.Grad)
+            .ToListAsync();
     }
 
     public async Task AddSenzor(Senzor senzor)
@@ -52,8 +55,8 @@ public class SenzorService
         var existing = await _unit.Uredjaji.GetByIdAsync(id) as Senzor;
         if (existing == null) throw new Exception("Sensor not found");
 
-        existing.Name = updated.Name;
-        existing.GradId = updated.GradId;
+
+
         existing.Vrijednost = updated.Vrijednost;
 
         await _unit.CompleteAsync();
@@ -64,6 +67,17 @@ public class SenzorService
         await _unit.Uredjaji.AddAsync(kontroler);
         var res = await _unit.CompleteAsync();
         if (res <= 0) throw new Exception("Failed to add controller");
+    }
+    public async Task UpdateKontroler(int id, Kontroler updated)
+    {
+        var existing = await _unit.Uredjaji.GetByIdAsync(id) as Kontroler;
+
+      if (existing == null) throw new Exception("Controller not found");
+
+        existing.Status = updated.Status;
+        existing.BrojKanala = updated.BrojKanala;
+
+        await _unit.CompleteAsync();
     }
 
     public async Task DeleteDevice(int id)

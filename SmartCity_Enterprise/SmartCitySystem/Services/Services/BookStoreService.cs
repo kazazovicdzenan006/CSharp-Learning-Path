@@ -8,6 +8,7 @@ using Domain.Models;
 using Services.DTOs.BookStoreAnalizeDtos;
 using System.ComponentModel;
 using Services.DTOs.BooksDtos;
+using FluentValidation;
 
 public class BookStoreService
 {
@@ -17,6 +18,7 @@ public class BookStoreService
     //private List<Film> Filmovi => _biblioteka.OfType<Film>().ToList();
 
     private readonly IUnitOfWork _unit;
+    private readonly IValidator
     private IQueryable<Knjiga> Knjige => _unit.Artikli.GetQueryable().OfType<Knjiga>();
     private IQueryable<Film> Filmovi => _unit.Artikli.GetQueryable().OfType<Film>();
     // Using IQueryable for minimal data transfer and Deferred Execution

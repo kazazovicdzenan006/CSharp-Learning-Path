@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Services.DTOs.SenzorDtos;
+using Services.DTOs.ControllersDtos;
 using Services.DTOs.DevicesDtos;
+using Services.DTOs.SenzorDtos;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -43,6 +44,27 @@ public class DeviceController : ControllerBase
     {
         var sensor = _map.Map<Senzor>(dto);
         await _service.UpdateSenzor(id, sensor);
+        return NoContent();
+    }
+
+    [HttpPost("Kontroler/Add", Name = "AddKontroler")]
+    public async Task<ActionResult> AddKontroler(ControllerCreateDto dto)
+    {
+        var kontroler = _map.Map<Kontroler>(dto);
+        await _service.AddKontroler(kontroler);
+        return CreatedAtRoute("AddKontroler", new { id = kontroler.Id }, dto);
+    }
+
+    [HttpPut("Kontroler/Update/{id}")]
+    public async Task<ActionResult> UpdateKontroler(int id, ControllerUpdateDto dto)
+    {
+        
+        var kontroler = _map.Map<Kontroler>(dto);
+
+        
+        await _service.UpdateKontroler(id, kontroler);
+
+        
         return NoContent();
     }
 

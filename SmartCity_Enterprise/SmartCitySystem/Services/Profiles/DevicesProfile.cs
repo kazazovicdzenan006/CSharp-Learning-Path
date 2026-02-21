@@ -11,7 +11,9 @@ namespace Services.Profiles
     {
         public DevicesProfile()
         {
-            CreateMap<Uredjaj, DevicesReadDto>().ForMember(dest => dest.GradId, opt => opt.MapFrom(src => src.Grad.Name));
+            CreateMap<Uredjaj, DevicesReadDto>()
+                .ForMember(dest => dest.GradName, opt => opt.MapFrom(src => src.Grad.Name))
+                .ForMember(dest => dest.GradId, opt => opt.MapFrom(src => src.GradId));
         }
     }
 }

@@ -1,6 +1,10 @@
 using API_UI.Middleware;
 using Data;
 using Microsoft.EntityFrameworkCore;
+using FluentValidation;
+using System.ComponentModel.DataAnnotations;
+using Services.Validators;
+
 
 
 
@@ -12,7 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<MasterContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
-
+builder.Services.AddValidatorsFromAssemblyContaining<IAssemblyMarker>();  
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

@@ -51,9 +51,14 @@ namespace API_UI.Middleware
             {
                 statusCode = HttpStatusCode.BadRequest;
                 message = exception is LibraryLimitException ? exception.Message : exception.InnerException.Message;
+
+            }
+            else if (exception is DeviceLimitException || exception.InnerException is DeviceLimitException)
+            {
+                statusCode = HttpStatusCode.BadRequest;
+                message = exception is DeviceLimitException ? exception.Message : exception.InnerException.Message;
             }
 
-       
             context.Response.StatusCode = (int)statusCode;
 
             var response = new

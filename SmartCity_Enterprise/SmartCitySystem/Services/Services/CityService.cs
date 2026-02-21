@@ -5,15 +5,16 @@ using Microsoft.Identity.Client;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using Services.DTOs.CityAnaliticsDto;
+using Services.Services;
 
-public class CityService
+public class CityService : BaseService
 {
     private readonly IUnitOfWork _unit;
     private IQueryable<CrossRoad> crossRoads => _unit.CityNodes.GetQueryable().OfType<CrossRoad>();
     private IQueryable<ParkingLot> parkingLots => _unit.CityNodes.GetQueryable().OfType<ParkingLot>();
 
 
-    public CityService(IUnitOfWork unit)
+    public CityService(IUnitOfWork unit, IServiceProvider serviceProvider) : base(serviceProvider)
     {
         _unit = unit;
     }
