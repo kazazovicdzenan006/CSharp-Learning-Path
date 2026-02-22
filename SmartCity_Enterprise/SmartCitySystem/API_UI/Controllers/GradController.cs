@@ -10,20 +10,20 @@ namespace API_UI.Controllers
     public class GradController : ControllerBase
     {
         private readonly CityService _service;
-        private readonly IMapper _map;
 
-        public GradController(CityService service, IMapper mapper)
+
+        public GradController(CityService service)
         {
             _service = service;
-            _map = mapper;
+
         }
 
         [HttpGet("GetAllCities")]
         public async Task<ActionResult<IEnumerable<GradReadDto>>> GetCities()
         {
             var data = await _service.GetAllCitiesAsync();
-            var cityDto = _map.Map<IEnumerable<GradReadDto>>(data);
-            return Ok(cityDto);
+
+            return Ok(data);
         }
 
 
@@ -31,11 +31,9 @@ namespace API_UI.Controllers
         public async Task<ActionResult<GradReadDto>> AddCity(GradCreateDto city)
         {
 
-            var data = _map.Map<Grad>(city);
-            await _service.AddCity(data);
-            var cityDto = _map.Map<GradReadDto>(data);
+            var cityDto = await _service.AddCity(city);
+          
             return CreatedAtRoute("AddCity", cityDto);
-
 
         }
 
@@ -43,16 +41,8 @@ namespace API_UI.Controllers
         [HttpPut("UpdateCity/{id}")]
         public async Task<ActionResult> UpdateCity(int id, GradUpdateDto updatedData)
         {
-            var currentCity = await _service.GetCityById(id);
-            if (currentCity != null)
-            {
-
-                _map.Map(updatedData, currentCity);
-                await _service.UpdateCity(id, currentCity);
-                return NoContent();
-
-            }
-            else return BadRequest("There is no object with that id");
+            await _service.UpdateCity(id, updatedData);
+            return NoContent();
         }
 
         [HttpDelete("DeleteCity/{id}")]

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Text.Json;
+using FluentValidation;
 
 
 namespace API_UI.Middleware
@@ -57,6 +58,21 @@ namespace API_UI.Middleware
             {
                 statusCode = HttpStatusCode.BadRequest;
                 message = exception is DeviceLimitException ? exception.Message : exception.InnerException.Message;
+            }
+            else if (exception is ValidationException validationException)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                var errors = validationException.Errors
+                    .Select(e => new { Field = e.PropertyName, Error = e.ErrorMessage });
+
+                var Response = new
+                {
+                    StatusCode = 400,
+                    Message = "Validation failed",
+                    Errors = errors // Ovo šalje listu svih polja koja nisu prošla
+                };
+
+                return context.Response.WriteAsync(JsonSerializer.Serialize(Response));
             }
 
             context.Response.StatusCode = (int)statusCode;

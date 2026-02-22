@@ -5,53 +5,60 @@ using Microsoft.Identity.Client;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using Services.DTOs.CityAnaliticsDto;
+using Services.DTOs.CityNodeDto;
+using Services.DTOs.GradDtos;
+using Services.DTOs.CrossRoadDto;
+using Services.DTOs.ParkingLotDto;
 using Services.Services;
+using AutoMapper;
 
 public class CityService : BaseService
 {
     private readonly IUnitOfWork _unit;
+    private readonly IMapper _mapper; 
     private IQueryable<CrossRoad> crossRoads => _unit.CityNodes.GetQueryable().OfType<CrossRoad>();
     private IQueryable<ParkingLot> parkingLots => _unit.CityNodes.GetQueryable().OfType<ParkingLot>();
 
 
-    public CityService(IUnitOfWork unit, IServiceProvider serviceProvider) : base(serviceProvider)
+    public CityService(IUnitOfWork unit, IMapper mapper, IServiceProvider serviceProvider) : base(serviceProvider)
     {
         _unit = unit;
+        _mapper = mapper;
     }
   
-    public async Task<IEnumerable<CityNode>> AllLocaations()
+    public async Task<IEnumerable<CityNodeReadDto>> AllLocaations()
     {
         var _allNodes = await _unit.CityNodes
             .GetQueryable()
             .Include(x => x.Grad)
             .ToListAsync();
-
-        return _allNodes;
+        var dto = _mapper.Map<IEnumerable<CityNodeReadDto>>(_allNodes);
+        return dto;
     }
 
-
-    public async Task<List<CityNode>> GetReportData()
+    public async Task<List<GradReadDto>> GetAvailableCities()
     {
-        var data = await _unit.CityNodes
-            .GetQueryable()
-            .Include(x => x.Grad)
-            .ToListAsync();
-        return data;
+        var data = await _unit.Gradovi.GetAllAsync();
+        var dto = _mapper.Map<List<GradReadDto>>(data);
+
+        return dto;
+    }
+    public async Task<GradReadDto> GetCityById(int id)
+    {
+        var city = await _unit.Gradovi.GetByIdAsync(id);
+        var dto = _mapper.Map<GradReadDto>(city);
+        return dto;
     }
 
-    public async Task<List<Grad>> GetAvailableCities()
+    public async Task<GradReadDto> AddCity(GradCreateDto dto)
     {
-        return (await _unit.Gradovi.GetAllAsync()).ToList();
-    }
-    public async Task<Grad> GetCityById(int id)
-    {
-        return await _unit.Gradovi.GetByIdAsync(id);
-    }
-
-    public async Task AddCity(Grad city)
-    {
+            await ValidateAsync(dto);
+            var city = _mapper.Map<Grad>(dto);
             await _unit.Gradovi.AddAsync(city);
             await _unit.CompleteAsync();
+
+        return _mapper.Map<GradReadDto>(city);
+
     }
 
     public async Task DeleteCity(int id)
@@ -65,13 +72,14 @@ public class CityService : BaseService
         else throw new Exception("There is no city with that id");
     }
 
-    public async Task UpdateCity(int id, Grad city)
+    public async Task UpdateCity(int id, GradUpdateDto dto)
     {
+        await ValidateAsync(dto);
+       
         var toUpdate = await _unit.Gradovi.GetByIdAsync(id);
         if (toUpdate != null)
         {
-            toUpdate.Name = city.Name;
-            _unit.Gradovi.Update(toUpdate);
+            _mapper.Map(dto, toUpdate);
             await _unit.CompleteAsync();
         }else { throw new Exception("Couldn't find city with that id"); }
     }
@@ -88,30 +96,34 @@ public class CityService : BaseService
     }
 
 
-    public async Task<IEnumerable<CrossRoad>> HighJamCrossRoads()
+    public async Task<IEnumerable<CrossRoadReadDto>> HighJamCrossRoads()
     {
         var query = crossRoads.OfType<CrossRoad>().Where(x => x.TrafficJamPercantage > 80);
 
         var data = await query.ToListAsync();
+        var dto = _mapper.Map<IEnumerable<CrossRoadReadDto>>(data);
 
-        return data;
+        return dto;
     }
 
 
-    public async Task<IEnumerable<ParkingLot>> HighlyOccupiedParkingLots()
+    public async Task<IEnumerable<ParkingLotReadDto>> HighlyOccupiedParkingLots()
     {
         var query = parkingLots.Where(x => x.AvailableParkingSpots < 5);
 
         var data = await query.ToListAsync();
 
-        return data;
+        var dto = _mapper.Map<IEnumerable<ParkingLotReadDto>>(data);
+
+        return dto;
     }
 
 
-    public async Task<List<Grad>> GetAllCitiesAsync()
+    public async Task<IEnumerable<GradReadDto>> GetAllCitiesAsync()
     {
         var cities = await _unit.Gradovi.GetAllAsync();
-        return cities.ToList();
+        var dto = _mapper.Map<IEnumerable<GradReadDto>>(cities);
+        return dto;
     }
 
     public async Task<CityNode> GetNodeById(int id)
@@ -128,48 +140,49 @@ public class CityService : BaseService
     }
 
     // --- PARKING LOT ---
-    public async Task AddParkingLot(ParkingLot parking)
+    public async Task<ParkingLotReadDto> AddParkingLot(ParkingLotCreateDto dto)
     {
+        await ValidateAsync(dto);
+        var parking = _mapper.Map<ParkingLot>(dto);
         await _unit.CityNodes.AddAsync(parking);
         var result = await _unit.CompleteAsync();
         if (result <= 0) throw new Exception("Failed to add parking lot to the database!");
+
+        return _mapper.Map<ParkingLotReadDto>(parking);
     }
 
-    public async Task UpdateParkingLot(int id, ParkingLot updatedData)
+    public async Task UpdateParkingLot(int id, ParkingLotUpdateDto dto)
     {
+        await ValidateAsync(dto);
+        
         var existing = await _unit.CityNodes.GetByIdAsync(id) as ParkingLot;
         if (existing == null) throw new Exception("Parking lot not found!");
 
-        existing.CityZone = updatedData.CityZone;
-        existing.StreetName = updatedData.StreetName;
-
-
-        existing.ParkingName = updatedData.ParkingName;
-        existing.TotalParkingSpots = updatedData.TotalParkingSpots;
-        existing.AvailableParkingSpots = updatedData.AvailableParkingSpots;
+        _mapper.Map(dto, existing);
 
         await _unit.CompleteAsync();
     }
 
     // --- CROSSROAD ---
-    public async Task AddCrossRoad(CrossRoad crossRoad)
+    public async Task<CrossRoadReadDto> AddCrossRoad(CrossRoadCreateDto dto)
     {
+        await ValidateAsync(dto);
+        var crossRoad = _mapper.Map<CrossRoad>(dto);
         await _unit.CityNodes.AddAsync(crossRoad);
         var result = await _unit.CompleteAsync();
         if (result <= 0) throw new Exception("Failed to add crossroad to the database!");
+
+        return _mapper.Map<CrossRoadReadDto>(crossRoad);
     }
 
-    public async Task UpdateCrossRoad(int id, CrossRoad updatedData)
+    public async Task UpdateCrossRoad(int id, CrossRoadUpdateDto dto)
     {
+        await ValidateAsync(dto);
+       
         var existing = await _unit.CityNodes.GetByIdAsync(id) as CrossRoad;
         if (existing == null) throw new Exception("Crossroad not found!");
 
-        existing.CityZone = updatedData.CityZone;
-        existing.StreetName = updatedData.StreetName;
-
-
-        existing.CrossName = updatedData.CrossName;
-        existing.TrafficJamPercantage = updatedData.TrafficJamPercantage;
+        _mapper.Map(dto, existing);
 
         await _unit.CompleteAsync();
     }

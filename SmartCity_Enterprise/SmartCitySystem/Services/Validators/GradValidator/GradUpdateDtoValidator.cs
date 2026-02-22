@@ -11,7 +11,7 @@ namespace Services.Validators.GradValidator
 
         public GradUpdateDtoValidator()
         {
-            RuleFor(x => x.Name).NotEmpty().MaximumLength(100);
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(100).MinimumLength(2);
         }
     }
 }

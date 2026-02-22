@@ -10,7 +10,7 @@ namespace Services.Validators.GradValidator
     {
         public GradCreateDtoValidator()
         {
-            RuleFor(x => x.Name).NotEmpty().MaximumLength(100);
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(100).MinimumLength(2);
         }
 
 

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Services.Validators
 {
-    public interface IAssemblyMaker
+    public interface IAssemblyMarker
     {
     }
 }

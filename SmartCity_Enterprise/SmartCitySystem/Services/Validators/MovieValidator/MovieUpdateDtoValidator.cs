@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using FluentValidation;
 using Services.DTOs.FilmDtos;
-{
-    
-}
+
 
 namespace Services.Validators.MovieValidator
 {
