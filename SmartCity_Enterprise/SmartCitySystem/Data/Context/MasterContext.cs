@@ -2,11 +2,13 @@
 
 
 
-
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Domain.Models;
 using Microsoft.Extensions.Options;
-public class MasterContext : DbContext
+using Microsoft.Identity;
+using Domain.Identity;
+public class MasterContext : IdentityDbContext<SystemCityUser, SystemCityRole, int>
 {
     public MasterContext() { }
   
@@ -30,6 +32,7 @@ public class MasterContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<Knjiga>().ToTable("Books");
         modelBuilder.Entity<Film>().ToTable("Movies");
         modelBuilder.Entity<ParkingLot>().ToTable("ParkingLots");

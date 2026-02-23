@@ -1,37 +1,25 @@
 ﻿
 
-using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
-using System.Text;
-using Domain.Models;
-using Services.DTOs.BookStoreAnalizeDtos;
-using System.ComponentModel;
-using Services.DTOs.BooksDtos;
-using FluentValidation;
 
-public class BookStoreService
+public class BookStoreService : BaseService
 {
-    //private readonly List<BibliotekaArtikal> _biblioteka;
-    //private readonly StorageManager<BibliotekaArtikal> _manager;
-    //private List<Knjiga> Knjige => _biblioteka.OfType<Knjiga>().ToList();
-    //private List<Film> Filmovi => _biblioteka.OfType<Film>().ToList();
 
     private readonly IUnitOfWork _unit;
-    
+    private readonly IMapper _mapper;
     private IQueryable<Knjiga> Knjige => _unit.Artikli.GetQueryable().OfType<Knjiga>();
     private IQueryable<Film> Filmovi => _unit.Artikli.GetQueryable().OfType<Film>();
     // Using IQueryable for minimal data transfer and Deferred Execution
     //Data filtering is done on the server and we only get the finished product (only data that we need instead all of the data) 
     // so we improving performance plus IQueryable is waiting for ToListAsync or similar methods to send data (Deferred Execution)
-    public BookStoreService(IUnitOfWork unit)
+    public BookStoreService(IUnitOfWork unit, IMapper mapper, IServiceProvider provider) : base(provider)   
     {
 
         _unit = unit; 
+        _mapper = mapper;
 
     }
 
-    // we don't need method SaveCurrentState because we have now database and Method AddNewItem do all hardwork
+
 
     public async Task<List<GroupedByAuthorDto>> GroupedByAuthor()
     {
@@ -46,22 +34,26 @@ public class BookStoreService
 
     }
 
-    public async Task<IEnumerable<Knjiga>> GetBooks()
+    public async Task<IEnumerable<BooksReadDto>> GetBooks()
     {
-        return await _unit.Knjige.GetAllAsync();
+        var data = await _unit.Knjige.GetAllAsync();
+        var dto = _mapper.Map<IEnumerable<BooksReadDto>>(data);
+        return dto;
     }
-    public async Task<IEnumerable<Film>> GetMovies()
+    public async Task<IEnumerable<FilmReadDto>> GetMovies()
     {
-        return await _unit.Filmovi.GetAllAsync();
+        var data = await _unit.Filmovi.GetAllAsync();
+        var dto = _mapper.Map<IEnumerable<FilmReadDto>>(data);
+        return dto;
     }
 
 
-    public async Task<IEnumerable<Knjiga>> LongBooks()
+    public async Task<IEnumerable<BooksReadDto>> LongBooks()
     {
       var data = await Knjige
             .Where(x => x.BrojStranica > 300).ToListAsync();
-   
-        return data;
+        var dto = _mapper.Map<IEnumerable<BooksReadDto>>(data); 
+        return dto;
     }
 
     public async Task<List<MoviesByDirectorDto>> GroupedByDirector()
@@ -76,35 +68,35 @@ public class BookStoreService
             })
             .ToListAsync();
     }
-   
 
 
-    public async Task UpdateArtikal(int id, BibliotekaArtikal updatedData)
+    public async Task UpdateBook(int id, BooksUpdateDto dto)
     {
-       
-        var existingArtikal = await _unit.Artikli.GetByIdAsync(id);
+        await ValidateAsync(dto);
 
-        if (existingArtikal == null) throw new Exception("Artikal nije pronađen!");
+        var existing = await _unit.Artikli.GetByIdAsync(id) as Knjiga;
 
+        if (existing == null) throw new Exception("Knjiga nije pronađena!");
 
-        existingArtikal.Naslov = updatedData.Naslov;
-        existingArtikal.GodinaIzdanja = updatedData.GodinaIzdanja;
-        //existingArtikal.GradId = updatedData.GradId;
-
-
-        if (existingArtikal is Knjiga eKnjiga && updatedData is Knjiga nKnjiga)
-        {
-            eKnjiga.Autor = nKnjiga.Autor;
-            eKnjiga.BrojStranica = nKnjiga.BrojStranica;
-        }
-        else if (existingArtikal is Film eFilm && updatedData is Film nFilm)
-        {
-            eFilm.Reziser = nFilm.Reziser;
-            eFilm.TrajanjeUMinutama = nFilm.TrajanjeUMinutama;
-        }
+        _mapper.Map(dto, existing);
 
         await _unit.CompleteAsync();
     }
+
+
+    public async Task UpdateFilm(int id, FilmUpdateDto dto)
+    {
+        await ValidateAsync(dto);
+        var existing = await _unit.Artikli.GetByIdAsync(id) as Film;
+
+        if (existing == null) throw new Exception("Film nije pronađen!");
+
+        _mapper.Map(dto, existing);
+
+        await _unit.CompleteAsync();
+    }
+
+   
     public async Task<BibliotekaArtikal> GetArtikalById(int id)
     {
         return await _unit.Artikli.GetByIdAsync(id);
@@ -132,14 +124,15 @@ public class BookStoreService
         return (await _unit.Gradovi.GetAllAsync()).ToList();
     }
 
-    public async Task<IEnumerable<BibliotekaArtikal>> GetReportData()
+    public async Task<IEnumerable<BookStoreItemsReadDto>> GetReportData()
     {
         var AllData = await _unit.Artikli
             .GetQueryable()
             .Include(x => x.Grad)
             .ToListAsync();
+        var dto = _mapper.Map<IEnumerable<BookStoreItemsReadDto>>(AllData); 
         // if we will only read data, we use .AsNoTracking() so we don't waste resources for monitoring data
-        return AllData;
+        return dto;
     }
 
 
@@ -151,21 +144,23 @@ public class BookStoreService
     }
 
 
-    public async Task AddNewItem(BibliotekaArtikal item)
+
+    public async Task<BooksReadDto> AddNewBook(BooksCreateDto dto)
     {
-        await _unit.Artikli.AddAsync(item);
-        await _unit.CompleteAsync();
-    }
-    public async Task AddNewBook(Knjiga item)
-    {
+        await ValidateAsync(dto);
+        var item = _mapper.Map<Knjiga>(dto);
         await _unit.Knjige.AddAsync(item);
         await _unit.CompleteAsync();
+        return _mapper.Map<BooksReadDto>(item);
     }
 
-    public async Task AddNewFilm(Film item)
+    public async Task<FilmReadDto> AddNewFilm(FilmCreateDto dto)
     {
+        await ValidateAsync(dto);
+        var item = _mapper.Map<Film>(dto);
         await _unit.Filmovi.AddAsync(item);
         await _unit.CompleteAsync();
+        return _mapper.Map<FilmReadDto>(item);
     }
 
     public async Task<bool> GetDostupnost(string FilmName)
@@ -177,9 +172,11 @@ public class BookStoreService
         return postoji;
     }
 
-    public async Task<List<Grad>> GetAllCitiesAsync()
+    public async Task<List<GradReadDto>> GetAllCitiesAsync()
     {
-        return (await _unit.Gradovi.GetAllAsync()).ToList();
+        var data = (await _unit.Gradovi.GetAllAsync()).ToList();
+        var dto = _mapper.Map<List<GradReadDto>>(data); 
+        return dto;
     }
 
     public async Task<Grad> GetFirstCityAsync()

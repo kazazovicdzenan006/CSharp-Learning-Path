@@ -9,12 +9,11 @@ using Services.DTOs.SenzorDtos;
 public class DeviceController : ControllerBase
 {
     private readonly SenzorService _service;
-    private readonly IMapper _map;
 
-    public DeviceController(SenzorService service, IMapper map)
+
+    public DeviceController(SenzorService service)
     {
         _service = service;
-        _map = map;
     }
 
     [HttpGet("Analytics")]
@@ -28,43 +27,38 @@ public class DeviceController : ControllerBase
     public async Task<ActionResult<IEnumerable<DevicesReadDto>>> GetAll()
     {
         var devices = await _service.GetAllDevices();
-        return Ok(_map.Map<IEnumerable<DevicesReadDto>>(devices));
+        return Ok(devices);
     }
 
     [HttpPost("Senzor/Add")]
     public async Task<ActionResult> AddSenzor(SenzorCreateDto dto)
     {
-        var sensor = _map.Map<Senzor>(dto);
-        await _service.AddSenzor(sensor);
+        await _service.AddSenzor(dto);
         return Ok();
     }
 
     [HttpPut("Senzor/Update/{id}")]
     public async Task<ActionResult> UpdateSenzor(int id, SenzorUpdateDto dto)
     {
-        var sensor = _map.Map<Senzor>(dto);
-        await _service.UpdateSenzor(id, sensor);
+
+        await _service.UpdateSenzor(id, dto);
         return NoContent();
     }
 
     [HttpPost("Kontroler/Add", Name = "AddKontroler")]
     public async Task<ActionResult> AddKontroler(ControllerCreateDto dto)
     {
-        var kontroler = _map.Map<Kontroler>(dto);
-        await _service.AddKontroler(kontroler);
-        return CreatedAtRoute("AddKontroler", new { id = kontroler.Id }, dto);
+
+        await _service.AddKontroler(dto);
+        return CreatedAtRoute("AddKontroler", dto);
     }
 
     [HttpPut("Kontroler/Update/{id}")]
     public async Task<ActionResult> UpdateKontroler(int id, ControllerUpdateDto dto)
     {
-        
-        var kontroler = _map.Map<Kontroler>(dto);
+  
+        await _service.UpdateKontroler(id, dto);
 
-        
-        await _service.UpdateKontroler(id, kontroler);
-
-        
         return NoContent();
     }
 

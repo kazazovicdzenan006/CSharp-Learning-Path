@@ -1,0 +1,24 @@
+﻿global using System;
+global using System.Collections.Generic;
+global using System.Text;
+global using AutoMapper;
+global using Microsoft.EntityFrameworkCore.Storage.Json;
+global using Services.DTOs.CityAnaliticsDto;
+global using Services.DTOs.CityNodeDto;
+global using Services.DTOs.CrossRoadDto;
+global using Services.DTOs.GradDtos;
+global using Services.DTOs.ParkingLotDto;
+global using Services.DTOs.DevicesDtos;
+global using Services.DTOs.FilmDtos;
+global using Services.DTOs.BooksDtos;
+global using Services.DTOs.BookStoreItemsDto;
+global using Services.DTOs.BookStoreAnalizeDtos;
+global using Services.DTOs.ControllersDtos;
+global using Services.DTOs.SenzorDtos;
+global using Services.Services;
+global using System.Runtime.CompilerServices;
+global using Microsoft.EntityFrameworkCore;
+global using System.Linq.Expressions;
+global using FluentValidation;
+global using Domain.Models;
+

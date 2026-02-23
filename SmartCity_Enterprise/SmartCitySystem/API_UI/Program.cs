@@ -1,9 +1,12 @@
 using API_UI.Middleware;
 using Data;
-using Microsoft.EntityFrameworkCore;
+using Domain.Identity;
 using FluentValidation;
-using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Services.Services;
 using Services.Validators;
+using System.ComponentModel.DataAnnotations;
 
 
 
@@ -14,8 +17,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddDbContext<MasterContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-);
+options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddIdentity<SystemCityUser, SystemCityRole>()
+    .AddEntityFrameworkStores<MasterContext>()
+    .AddDefaultTokenProviders();
 builder.Services.AddValidatorsFromAssemblyContaining<IAssemblyMarker>();  
 
 builder.Services.AddControllers();
@@ -57,6 +63,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -1,16 +1,7 @@
 ﻿
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using Services.DTOs.CityAnaliticsDto;
-using Services.DTOs.CityNodeDto;
-using Services.DTOs.GradDtos;
-using Services.DTOs.CrossRoadDto;
-using Services.DTOs.ParkingLotDto;
-using Services.Services;
-using AutoMapper;
+
 
 public class CityService : BaseService
 {

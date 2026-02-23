@@ -15,10 +15,8 @@ namespace API_UI.Controllers
     public class BookStoreController : ControllerBase
     {
         private readonly BookStoreService _service;
-        private readonly IMapper _map;
-        public BookStoreController(BookStoreService service, IMapper map)
+        public BookStoreController(BookStoreService service)
         {
-            _map = map;
             _service = service; 
         }
 
@@ -26,8 +24,7 @@ namespace API_UI.Controllers
         public async Task<ActionResult<IEnumerable<BookStoreItemsReadDto>>> GetAllData()
         {
             var data = await _service.GetReportData();
-            var dataDto = _map.Map<IEnumerable<BookStoreItemsReadDto>>(data);
-            return Ok(dataDto);
+            return Ok(data);
 
         }
 
@@ -35,16 +32,14 @@ namespace API_UI.Controllers
         public async Task<ActionResult<IEnumerable<BooksReadDto>>> GetBooks()
         {
             var books = await _service.GetBooks();
-            var booksDto = _map.Map<IEnumerable<BooksReadDto>>(books);
-            return Ok(booksDto);
+            return Ok(books);
         }
 
         [HttpGet("AllMovies")]
         public async Task<ActionResult<IEnumerable<FilmReadDto>>> GetMovies()
         {
             var movies = await _service.GetMovies();
-            var moviesDto = _map.Map<IEnumerable<FilmReadDto>>(movies);
-            return Ok(moviesDto);
+            return Ok(movies);
 
         }
 
@@ -52,8 +47,7 @@ namespace API_UI.Controllers
         public async Task<ActionResult<IEnumerable<GradReadDto>>> GetAllCities()
         {
             var cities = await _service.GetAllCitiesAsync();
-            var citiesDto = _map.Map<IEnumerable<GradReadDto>>(cities);
-            return Ok(citiesDto);
+            return Ok(cities);
         }
 
         [HttpGet("BooksByAuthor")]
@@ -68,8 +62,8 @@ namespace API_UI.Controllers
         {
             var longBooks = await _service.LongBooks();
             if (longBooks.Any() == false) return NotFound("There is no book longer than 300 pages");
-            var booksDto = _map.Map<IEnumerable<BooksReadDto>>(longBooks);
-            return Ok(booksDto);
+ 
+            return Ok(longBooks);
         }
 
         [HttpGet("MoviesByDirector")]
@@ -77,6 +71,8 @@ namespace API_UI.Controllers
         {
             return Ok(await _service.GroupedByDirector());
         }
+
+
 
         [HttpGet("MovieAvailability/{MovieName}")]
         public async Task<bool> GetAvailability(string MovieName)
@@ -89,12 +85,8 @@ namespace API_UI.Controllers
         [HttpPost("AddBook", Name = "AddBook")]
         public async Task<ActionResult<BooksCreateDto>> AddNewBook(BooksCreateDto obj)
         {
-            var book = _map.Map<Knjiga>(obj);
-      
-         
-                await _service.AddNewBook(book);
-                var readDto = _map.Map<BooksReadDto>(book);
-                return CreatedAtRoute("AddBook", readDto);
+                await _service.AddNewBook(obj);
+                return CreatedAtRoute("AddBook", obj);
 
 
         }
@@ -103,11 +95,8 @@ namespace API_UI.Controllers
         [HttpPost("AddMovie", Name = "AddMovie")]
         public async Task<ActionResult<FilmCreateDto>> AddNewMovie(FilmCreateDto obj)
         {
-            var movie = _map.Map<Film>(obj);
-
-                await _service.AddNewFilm(movie);
-                var readDto = _map.Map<FilmReadDto>(movie);
-                return CreatedAtRoute("AddMovie", readDto);
+                await _service.AddNewFilm(obj);
+                return CreatedAtRoute("AddMovie", obj);
 
 
         }
@@ -115,9 +104,8 @@ namespace API_UI.Controllers
         [HttpPut("UpdateBook/{id}")]
         public async Task<ActionResult> UpdateBook(int id, BooksUpdateDto obj)
         {
-            var book = _map.Map<Knjiga>(obj);
-          
-                await _service.UpdateArtikal(id, book);
+
+                await _service.UpdateBook(id, obj);
                 return NoContent();
           
         }
@@ -125,9 +113,8 @@ namespace API_UI.Controllers
         [HttpPut("UpdateMovie/{id}")]
         public async Task<ActionResult> UpdateMovie(int id, FilmUpdateDto obj)
         {
-            var movie = _map.Map<Film>(obj);
          
-                await _service.UpdateArtikal(id, movie);
+                await _service.UpdateFilm(id, obj);
                 return NoContent();
           
         }
