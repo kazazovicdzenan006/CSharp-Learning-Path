@@ -1,6 +1,7 @@
 using API_UI.Middleware;
 using Data;
 using Domain.Identity;
+using Domain.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<MasterContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddIdentity<SystemCityUser, SystemCityRole>()
     .AddEntityFrameworkStores<MasterContext>()
     .AddDefaultTokenProviders();

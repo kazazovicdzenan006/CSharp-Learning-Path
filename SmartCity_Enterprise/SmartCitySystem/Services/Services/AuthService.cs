@@ -1,6 +1,8 @@
 ﻿using Domain.Identity;
+using Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Services.DTOs;
+using Services.DTOs.IdentityDto;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,13 +13,16 @@ namespace Services.Services
     {
         private readonly UserManager<SystemCityUser> _userManager;
         private readonly RoleManager<SystemCityRole> _roleManager;
+        private readonly ITokenService _token; 
 
         public AuthService(UserManager<SystemCityUser> user, 
             RoleManager<SystemCityRole> role, 
-            IServiceProvider provider) : base(provider)
+            IServiceProvider provider,
+            ITokenService token) : base(provider)
         {
             _userManager = user;
             _roleManager = role;
+            _token = token;
         }
 
 
@@ -54,7 +59,7 @@ namespace Services.Services
 
     
 
-    public async Task<SystemCityUser> Login(LoginDto dto)
+    public async Task<UserDto> Login(LoginDto dto)
         {
             await ValidateAsync(dto);
 
@@ -66,7 +71,16 @@ namespace Services.Services
 
             if (!result) throw new Exception("Invalid Email or Password");
 
-            return user;
+            var roles = await _userManager.GetRolesAsync(user);
+            var token = _token.CreateToken(user, roles);
+
+            return new UserDto
+            {
+                Email = user.Email,
+                FirstName = user.FirstName,
+                Roles = roles,
+                Token = token
+            };
 
 
         }

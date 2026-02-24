@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Services.Services;
 using Services.DTOs;
+using Services.DTOs.IdentityDto;
+using Services.Services;
 
 namespace API_UI.Controllers
 {
@@ -22,6 +23,14 @@ namespace API_UI.Controllers
         {
             await _auth.Register(dto);
             return Ok("Registration Successfull");
+        }
+
+
+        [HttpPost("Login")]
+        public async Task<ActionResult<UserDto>> Login(LoginDto dto)
+        {
+            var userDto = await _auth.Login(dto);
+            return Ok(userDto);
         }
 
     }
