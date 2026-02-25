@@ -1,80 +1,75 @@
-# SmartCity Enterprise 🏙️
-
-**SmartCity Enterprise** is a sophisticated IoT management system designed for urban infrastructure monitoring. This project represents the evolution of several sub-projects, consolidated into a professional, highly scalable solution.
 
 
+SmartCity Enterprise 🏙️
+SmartCity Enterprise is a robust, highly scalable IoT management system designed to monitor and manage urban infrastructure. Built with Clean Architecture principles, the system tracks everything from traffic density and parking availability to library inventories and environmental sensors.
 
-## 🏗️ Architecture Overview
+🏗️ Architecture & Design Patterns
+The project is structured into four distinct layers to ensure separation of concerns, testability, and maintainability:
 
-The project is built on **Clean Architecture** principles, ensuring the system is decoupled, testable, and maintainable. It is organized into a Blank Solution with the following project structure:
+Domain: Contains Enterprise Entities, Interfaces, and Business Logic.
 
-* **`Domain`**: The core of the system. Contains Enterprise Entities (Grad, Senzor, Book, etc.) and basic interfaces. 
-* **`Service`**: The Application layer. Contains all **Business Logic**, Service implementations, DTOs, and AutoMapper profiles. It acts as a bridge between the Data and UI layers.
-* **`Data`**: The Infrastructure layer. Handles data persistence using **EF Core**. Implements **Repository** and **Unit of Work** patterns with a SQL Server backbone.
-* **`UI` (Console)**: A legacy console interaction menu (to be decommissioned once API is finalized).
-* **`API_UI`**: A modern **ASP.NET Core Web API** providing endpoints for external integration.
+Data: Infrastructure layer handling SQL Server persistence via EF Core, implementing the Repository and Unit of Work patterns.
 
----
+Service: Application layer containing business services, DTOs, and AutoMapper profiles.
 
-## 📊 Domain & Data Modeling
+API / UI: The presentation layer. Currently features a functional Console UI for interaction and a modern ASP.NET Core Web API (in development).
 
-The system manages a complex ecosystem of city assets using an advanced database schema:
+🛠️ Tech Stack & Key Features
+Advanced OOP: Leverages Inheritance, Encapsulation, Polymorphism, and Interfaces to model complex city entities.
 
-### **Inheritance & DB Schema**
-I used the **Table-Per-Type (TPT)** model in EF Core to achieve high database normalization. 
-* **City Infrastructure**: `Grad` connects to `CityNodes` (Base for `CrossRoad` and `ParkingLot`).
-* **IoT Ecosystem**: `Uredjaj` (Base for `Senzor` and physical `Controllers`).
-* **Library System**: `BookStoreItems` (Base for `Film` and `Knjiga`).
+EF Core with TPT: Implements Table-Per-Type (TPT) inheritance for a highly normalized SQL database schema.
 
-### **Fluent API**
-Custom configurations are applied via Fluent API in the `MasterContext` to explicitly define relationships and constraints.
+Fluent API: Precise database relationship configuration (One-to-Many, Many-to-Many).
 
----
+Data Transfer Objects (DTOs): Used throughout the API to decouple the domain model from the presentation layer, powered by AutoMapper.
 
-## 🛠️ Tech Stack & Implementation Details
+Asynchronous Programming: End-to-end async/await for high-performance I/O operations.
 
-* **Advanced OOP**: Heavy use of inheritance, polymorphism, and interfaces to model real-world urban entities.
-* **AutoMapper**: Complete DTO (Data Transfer Object) implementation to decouple Domain models from the API response.
-* **Unit of Work & Repository**: Abstracted data access to make the entire project unit-testable.
-* **Asynchronous Programming**: End-to-end `async/await` implementation for optimized I/O.
-* **Dependency Injection**: Native .NET DI for managing service lifecycles.
-* **Custom Exceptions**: Domain-specific exception handling for device limits and validation errors.
+Dependency Injection (DI): Built-in .NET DI container for managing service lifetimes.
 
----
+Security & Auth: Implemented **JWT (JSON Web Token) Authentication** with **RBAC (Role-Based Access Control)** to secure API endpoints.
 
-## 🚀 Getting Started
+Validation: Integrated **FluentValidation** for clean, decoupled, and robust data validation logic.
 
-Currently, the project is executed via Visual Studio. Future updates will include containerization.
+Global Usings: Utilized **C# Global Usings** to simplify project structure and reduce boilerplate code across all layers.
 
-### **Prerequisites**
-* [.NET 10 SDK](https://dotnet.microsoft.com/download)
-* SQL Server (LocalDB or Express)
+Refactored Service Layer: Completed a full refactor to move all **AutoMapper** logic from Controllers to the **Service layer**, strictly following the "Thin Controller" principle.
 
-### **Installation**
-1.  **Clone the repository**:
-    ```bash
-    git clone [https://github.com/kazazovicdzenan006/CSharp-Learning-Path.git](https://github.com/kazazovicdzenan006/CSharp-Learning-Path.git)
-    ```
-2.  **Locate the Project**:
-    Navigate to the `SmartCity_Enterprise` folder within the cloned repository.
-3.  **Open the Solution**:
-    Open the `.sln` file found inside the `SmartCity_Enterprise` directory using Visual Studio 2026 (or your preferred IDE).
-4.  **Apply Migrations**:
-    Ensure your connection string is set in `appsettings.json`, then run the following in the Package Manager Console:
-    ```bash
-    dotnet ef database update --project Data
-    ```
-5.  **Run**:
-    Set `API_UI` or `UI` as the Startup Project and press `F5`.
+Clean Code & Safety: Implements Custom Exceptions, Delegates, and extensive Data Validation.
 
-> 🐳 **Note**: Docker support is planned for future releases to simplify environment setup.
+📊 Domain Model Overview
+The system manages a complex hierarchy of urban assets:
 
----
+Infrastructure: Grad (City) acts as the root, managing collections of Nodes, Devices, and Inventories.
 
-## 🧪 Testing
-The project is designed with a "Test-First" mindset. The current architecture supports full unit testing. Logic verified in predecessor projects (`Senzors`, `SmartCity`, `BookStore`) is being systematically integrated into the Enterprise test suite.
+City Nodes: A base for CrossRoad (Traffic density tracking) and ParkingLot (Capacity and real-time availability).
 
----
+IoT Devices: A base for Senzor (Air quality/Environment) and PhysicalController (Status and channel management).
 
-**Author**: [Dzenan Kazazovic]  
-**Status**: In Active Development 🚀
+Library System: BookStoreItems base for Film (Director, Duration) and Book (Author, Page count).
+
+🚀 Getting Started
+Prerequisites
+.NET 8 SDK or newer.
+
+SQL Server (Express or Developer).
+
+Installation & Execution
+Clone the repository:
+
+Bash
+git clone https://github.com/yourusername/SmartCity_Enterprise.git
+Database Setup: Update the connection string in the API_UI or UI project's configuration and run:
+
+Bash
+dotnet ef database update --project Data
+Run the Project:
+
+Set the UI (Console) or API_UI project as the Startup Project.
+
+Press F5 in Visual Studio or use dotnet run.
+
+Note: Docker support for containerized deployment is coming soon!
+
+🧪 Testing
+The architecture is fully testable. Logic from predecessor projects (Senzors, SmartCity, BookStore) is currently being integrated into automated unit tests for this Enterprise version.
