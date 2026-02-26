@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.DTOs.BooksDtos;
@@ -19,7 +20,7 @@ namespace API_UI.Controllers
         {
             _service = service; 
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpGet("AllData")]
         public async Task<ActionResult<IEnumerable<BookStoreItemsReadDto>>> GetAllData()
         {

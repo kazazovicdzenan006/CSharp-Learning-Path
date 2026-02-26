@@ -33,5 +33,12 @@ namespace API_UI.Controllers
             return Ok(userDto);
         }
 
+        [HttpPost("AddAdmin/{email}")]
+        public async Task<ActionResult> AddAdmin(string email)
+        {
+            await _auth.AssignAdminRole(email);
+            return Ok();
+        }
+
     }
 }

@@ -84,5 +84,21 @@ namespace Services.Services
 
 
         }
+
+        public async Task AssignAdminRole(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null) throw new Exception("User not found");
+
+            if(!await _roleManager.RoleExistsAsync("Admin"))
+            {
+                await _roleManager.CreateAsync(new SystemCityRole("Admin")
+                {
+                    RoleDescription = "Role with all privileges"
+                }); 
+              
+            }
+            await _userManager.AddToRoleAsync(user, "Admin");
+        }
     }
 }
