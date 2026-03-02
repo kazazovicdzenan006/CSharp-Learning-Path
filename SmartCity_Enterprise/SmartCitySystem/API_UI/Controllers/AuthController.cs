@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Services.DTOs;
 using Services.DTOs.IdentityDto;
 using Services.Services;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using System.Linq;
 
 namespace API_UI.Controllers
 {
@@ -40,5 +43,25 @@ namespace API_UI.Controllers
             return Ok();
         }
 
+        [HttpGet("Me")]
+        [Authorize]
+        public ActionResult<object> Me()
+        {
+            var claims = User.Claims.Select(c => new { c.Type, c.Value });
+            var roles = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+            return Ok(new { Name = User.Identity?.Name, IsAuthenticated = User.Identity?.IsAuthenticated, Roles = roles, Claims = claims });
+        }
+
+
+        [Authorize]
+        [HttpGet("whoami")]
+        public IActionResult WhoAmI()
+        {
+            return Ok(new
+            {
+                Roles = User.FindAll(ClaimTypes.Role).Select(c => c.Value),
+                AllClaims = User.Claims.Select(c => new { c.Type, c.Value })
+            });
+        }
     }
 }

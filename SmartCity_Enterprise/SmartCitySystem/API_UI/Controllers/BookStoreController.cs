@@ -20,6 +20,7 @@ namespace API_UI.Controllers
         {
             _service = service; 
         }
+
         [Authorize(Roles = "Admin")]
         [HttpGet("AllData")]
         public async Task<ActionResult<IEnumerable<BookStoreItemsReadDto>>> GetAllData()
@@ -28,6 +29,7 @@ namespace API_UI.Controllers
             return Ok(data);
 
         }
+
 
         [HttpGet("AllBooks")]
         public async Task<ActionResult<IEnumerable<BooksReadDto>>> GetBooks()

@@ -1,0 +1,21 @@
+@hostname = https://localhost:7132
+
+### 1. LOGIN (Dobivanje tokena za Admina)
+# Zamijeni sa stvarnim podacima iz baze
+
+POST {{hostname}}/api/Auth/Login
+Content-Type: application/json
+
+{
+  "email": "dzenan.kazazovic@gmail.com",
+  "password": "Kazazovic135!"
+}
+
+### 2. TESTIRANJE ADMIN ENDPOINTA
+# Ovdje zalijepi token koji dobiješ iz gornjeg poziva
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImR6ZW5hbi5rYXphem92aWNAZ21haWwuY29tIiwibmFtZWlkIjoiMiIsIkZpcnN0TmFtZSI6IkR6ZW5hbiIsIkxhc3ROYW1lIjoiS2F6YXpvdmljIiwicm9sZSI6WyJVc2VyIiwiQWRtaW4iXSwibmJmIjoxNzcyMTk5NTk5LCJleHAiOjE3NzI4MDQzOTksImlhdCI6MTc3MjE5OTU5OSwiaXNzIjoiU21hcnRDaXR5QXBpIiwiYXVkIjoiU21hcnRDaXR5VXNlcnMifQ.4mcBm06-ucaEzjb0b_NocDDv3e7-1VurzTE4nzruroI
+
+###
+
+GET {{hostname}}/api/BookStore/AllData
+Authorization: Bearer {{token}}
