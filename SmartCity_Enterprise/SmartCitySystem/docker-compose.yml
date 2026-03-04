@@ -1,7 +1,7 @@
 services:
   # Ovo je tvoj novi SQL Server koji radi na Linuxu
   smartcity.db:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    image: mcr.microsoft.com/mssql/server:2025-latest
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=Kazazovic3004!
@@ -18,4 +18,4 @@ services:
     depends_on:
       - smartcity.db
     environment:
-      - ConnectionStrings__DefaultConnection=Server=smartcity.db;Database=SmartCityDb;User Id=sa;Password=Kazazovic3004!ConnectionStrings__DefaultConnection=Server=smartcity.db;Database=SmartCityDb;User Id=sa;Password=TvojJakiPassword123!;TrustServerCertificate=True;!;TrustServerCertificate=True;
+     - ConnectionStrings__DefaultConnection=Server=smartcity.db;Database=SmartCityDb;User Id=sa;Password=Kazazovic3004!;TrustServerCertificate=True;

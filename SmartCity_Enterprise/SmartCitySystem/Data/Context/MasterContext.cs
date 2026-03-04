@@ -12,6 +12,7 @@ public class MasterContext : IdentityDbContext<SystemCityUser, SystemCityRole, i
 {
     public MasterContext() { }
   
+
     public MasterContext(DbContextOptions<MasterContext> options) : base(options) { }
 
     public DbSet<Grad> Gradovi { get; set; }
@@ -23,11 +24,7 @@ public class MasterContext : IdentityDbContext<SystemCityUser, SystemCityRole, i
     public DbSet<Uredjaj> Uredjaji { get; set; }
 
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseSqlServer("Server = (localdb)\\mssqllocaldb; Database = SmartCity_EnterpriseDB; Trusted_Connection = True; TrustServerCertificate = True;");
-
-    }
+  
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

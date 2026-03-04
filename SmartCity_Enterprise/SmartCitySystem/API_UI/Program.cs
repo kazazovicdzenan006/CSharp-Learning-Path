@@ -33,35 +33,7 @@ builder.Services.AddIdentity<SystemCityUser, SystemCityRole>()
 builder.Services.AddValidatorsFromAssemblyContaining<IAssemblyMarker>();  
 
 builder.Services.AddControllers();
-// Configure Swagger/OpenAPI using Swashbuckle (basic setup)
-// Keep basic Swagger setup here. To enable JWT in Swagger UI, add Microsoft.OpenApi package
-// and restore the detailed Swagger configuration (security definitions and requirements).
-//builder.Services.AddSwaggerGen();
-/*builder.Services.AddSwaggerGen(opt =>
-{
-    opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Smart City API", Version = "v1" });
 
-    opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        Description = "Unesite JWT token u obliku: 'Bearer {token}'"
-    });
-
-    opt.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
-            },
-            new List<string>()
-        }
-    });
-});*/
 builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer((document, context, cancellationToken) =>
@@ -158,6 +130,23 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Automatsko kreiranje baze i tabela pri pokretanju
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<MasterContext>();
+        // Ovo će kreirati bazu ako ne postoji i primijeniti sve migracije
+        context.Database.Migrate();
+        Console.WriteLine("Baza podataka je uspješno migrirana.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Greška pri migraciji: {ex.Message}");
+    }
+}
 
 
 app.Run();
